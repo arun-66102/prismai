@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Prism AI</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="icon" sizes="192x192" type="image/png" href="/static/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#paint0_linear)" />
+                <path d="M2 17L12 22L22 17" stroke="url(#paint1_linear)" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <path d="M2 12L12 17L22 12" stroke="url(#paint2_linear)" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <defs>
+                    <linearGradient id="paint0_linear" x1="2" y1="7" x2="22" y2="7" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#8B5CF6" />
+                        <stop offset="1" stop-color="#3B82F6" />
+                    </linearGradient>
+                    <linearGradient id="paint1_linear" x1="2" y1="19.5" x2="22" y2="19.5"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#8B5CF6" />
+                        <stop offset="1" stop-color="#3B82F6" />
+                    </linearGradient>
+                    <linearGradient id="paint2_linear" x1="2" y1="14.5" x2="22" y2="14.5"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#8B5CF6" />
+                        <stop offset="1" stop-color="#3B82F6" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span>Prism AI <span class="admin-badge">Admin</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="btn-secondary">Back to App</a>
+        </div>
+    </nav>
+
+    <main class="admin-container">
+        <header class="admin-header">
+            <h1>Platform Overview</h1>
+            <p>Monitor users, active deployments, and total generation volume.</p>
+        </header>
+
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Total Users</h3>
+                </div>
+                <p class="stat-value" id="statUsers">-</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Blogs Generated</h3>
+                </div>
+                <p class="stat-value" id="statBlogs">-</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                            <line x1="7" y1="2" x2="7" y2="22"></line>
+                            <line x1="17" y1="2" x2="17" y2="22"></line>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="2" y1="7" x2="7" y2="7"></line>
+                            <line x1="2" y1="17" x2="7" y2="17"></line>
+                            <line x1="17" y1="17" x2="22" y2="17"></line>
+                            <line x1="17" y1="7" x2="22" y2="7"></line>
+                        </svg>
+                    </div>
+                    <h3>Videos Created</h3>
+                </div>
+                <p class="stat-value" id="statVideos">-</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Images rendered</h3>
+                </div>
+                <p class="stat-value" id="statImages">-</p>
+            </div>
+        </section>
+
+        <section class="users-section">
+            <h2>Registered Accounts</h2>
+            <div class="table-responsive">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>User Details</th>
+                            <th>Role & Tier</th>
+                            <th>Joined Date</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="5" class="loading-cell">Loading accounts from database...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Update Tier Modal -->
+    <div id="tierModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Account</h2>
+                <button class="close-btn" onclick="closeTierModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Modify settings for <strong id="modalUserName"></strong></p>
+                <div class="custom-select" style="margin-top: 1rem;">
+                    <label
+                        style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.2rem; display: block;">Generation
+                        Tier</label>
+                    <select id="newTierSelect">
+                        <option value="free">Free Tier (Watermarked + Limits)</option>
+                        <option value="pro">Pro Tier (No Watermark + Higher Limits)</option>
+                        <option value="business">Business Tier (Unlimited Generations)</option>
+                    </select>
+                </div>
+                <div class="custom-select" style="margin-top: 1rem;">
+                    <label
+                        style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.2rem; display: block;">Account
+                        Role</label>
+                    <select id="newRoleSelect">
+                        <option value="user">USER (Standard Access)</option>
+                        <option value="admin">ADMIN (Full Access)</option>
+                    </select>
+                </div>
+                <div class="custom-select" style="margin-top: 1rem;">
+                    <label
+                        style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.2rem; display: block;">Account
+                        Status</label>
+                    <select id="newStatusSelect">
+                        <option value="true">Active</option>
+                        <option value="false">Suspended / Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTierModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveTierBtn">Confirm Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error/Toast container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+    <script src="/static/admin.js"></script>
+</body>
+
+</html>

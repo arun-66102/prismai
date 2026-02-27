@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+groq
+python-dotenv
+together
+Pillow
+requests
+huggingface_hub
+passlib[bcrypt]
+bcrypt==3.2.2
+python-jose[cryptography]
+asyncpg
+pydantic[email]
+gunicorn

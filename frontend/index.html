@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prism AI — AI-powered Blog, Video Script & Image Generation">
+    <title>Prism AI — Content Generation Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" sizes="192x192" type="image/png" href="/static/logo.png">
+</head>
+
+<body>
+
+    <!-- ─── Loading Overlay ──────────────────────────────────────────── -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loader">
+            <div class="loader-prism"></div>
+            <p class="loader-text">Generating with AI…</p>
+        </div>
+    </div>
+
+    <!-- ─── Toast Container ──────────────────────────────────────────── -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ─── Navbar ───────────────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-icon">◈</span>
+            <span class="brand-text">Prism <span class="brand-highlight">AI</span></span>
+        </div>
+        <div class="navbar-tabs">
+            <button class="tab-btn active" data-tab="blog" id="tab-blog">
+                <span class="tab-icon">📝</span> Blog
+            </button>
+            <button class="tab-btn" data-tab="video" id="tab-video">
+                <span class="tab-icon">🎬</span> Video Script
+            </button>
+            <button class="tab-btn" data-tab="image" id="tab-image">
+                <span class="tab-icon">🖼️</span> Image
+            </button>
+        </div>
+        <div class="navbar-status" id="auth-status-container">
+            <!-- Content will be injected by JS based on auth state -->
+            <button class="btn-icon-sm" id="nav-login-btn">Login</button>
+        </div>
+    </nav>
+
+    <!-- ─── Main Content ─────────────────────────────────────────────── -->
+    <main class="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero" id="hero-section">
+            <h1 class="hero-title">AI-Powered <span class="gradient-text">Content Generation</span></h1>
+            <p class="hero-subtitle">Create stunning blogs, video scripts, and social media images in seconds</p>
+        </section>
+
+        <!-- ═══ Auth Panels ═══ -->
+        <section id="panel-login" class="tab-panel auth-panel">
+            <div class="card form-card auth-card">
+                <div class="card-header">
+                    <h2 class="card-title">Welcome Back</h2>
+                    <p class="card-desc">Login to generate content</p>
+                </div>
+                <form id="login-form" class="gen-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="login-submit">
+                        <span class="btn-text">Login</span>
+                    </button>
+                    <div class="auth-links">
+                        <button type="button" class="text-btn" id="show-register-btn">Don't have an account? Sign
+                            up</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="panel-register" class="tab-panel auth-panel">
+            <div class="card form-card auth-card">
+                <div class="card-header">
+                    <h2 class="card-title">Create Account</h2>
+                    <p class="card-desc">Start generating content today</p>
+                </div>
+                <form id="register-form" class="gen-form">
+                    <div class="form-group">
+                        <label for="register-name">Name</label>
+                        <input type="text" id="register-name" placeholder="John Doe" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" placeholder="Min 8 characters" required
+                            minlength="8">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="register-submit">
+                        <span class="btn-text">Sign Up</span>
+                    </button>
+                    <div class="auth-links">
+                        <button type="button" class="text-btn" id="show-login-btn">Already have an account?
+                            Login</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ═══ Blog Generator Tab ═══ -->
+        <section id="panel-blog" class="tab-panel active">
+            <div class="generator-grid">
+                <div class="card form-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📝 Blog Generator</h2>
+                        <p class="card-desc">Generate SEO-optimized blog articles for your product</p>
+                        <div class="usage-stats" id="blog-usage-stats"></div>
+                    </div>
+                    <form id="blog-form" class="gen-form">
+                        <div class="form-group">
+                            <label for="blog-product">Product Name</label>
+                            <input type="text" id="blog-product" placeholder="e.g. Tesla Model S" required
+                                maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="blog-tone">Tone</label>
+                            <select id="blog-tone" required>
+                                <option value="Professional">Professional</option>
+                                <option value="Casual">Casual</option>
+                                <option value="Informative" selected>Informative</option>
+                                <option value="Persuasive">Persuasive</option>
+                                <option value="Humorous">Humorous</option>
+                                <option value="Inspirational">Inspirational</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="blog-words">Word Count: <span id="blog-words-val"
+                                    class="range-val">500</span></label>
+                            <input type="range" id="blog-words" min="100" max="3000" step="100" value="500">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="blog-submit">
+                            <span class="btn-text">Generate Blog</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card result-card" id="blog-result-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Generated Blog</h2>
+                        <div class="result-actions">
+                            <button class="btn-icon-sm" id="blog-copy" title="Copy to clipboard">📋</button>
+                            <button class="btn-icon-sm" id="blog-download" title="Download as text">⬇️</button>
+                        </div>
+                    </div>
+                    <div class="result-content" id="blog-result">
+                        <div class="empty-state">
+                            <span class="empty-icon">📝</span>
+                            <p>Your generated blog will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Video Script Tab ═══ -->
+        <section id="panel-video" class="tab-panel">
+            <div class="generator-grid">
+                <div class="card form-card">
+                    <div class="card-header">
+                        <h2 class="card-title">🎬 Video Script Generator</h2>
+                        <p class="card-desc">Create engaging video scripts with structured sections</p>
+                        <div class="usage-stats" id="video-usage-stats"></div>
+                    </div>
+                    <form id="video-form" class="gen-form">
+                        <div class="form-group">
+                            <label for="video-product">Product Name</label>
+                            <input type="text" id="video-product" placeholder="e.g. iPhone 16 Pro" required
+                                maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="video-tone">Tone</label>
+                            <select id="video-tone" required>
+                                <option value="Professional">Professional</option>
+                                <option value="Casual">Casual</option>
+                                <option value="Energetic" selected>Energetic</option>
+                                <option value="Dramatic">Dramatic</option>
+                                <option value="Conversational">Conversational</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="video-duration">Duration: <span id="video-duration-val" class="range-val">3
+                                    min</span></label>
+                            <input type="range" id="video-duration" min="1" max="15" step="1" value="3">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="video-submit">
+                            <span class="btn-text">Generate Script</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card result-card" id="video-result-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Generated Script</h2>
+                        <div class="result-actions">
+                            <button class="btn-icon-sm" id="video-copy" title="Copy to clipboard">📋</button>
+                            <button class="btn-icon-sm" id="video-download" title="Download as text">⬇️</button>
+                        </div>
+                    </div>
+                    <div class="result-content" id="video-result">
+                        <div class="empty-state">
+                            <span class="empty-icon">🎬</span>
+                            <p>Your generated script will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Image Generator Tab ═══ -->
+        <section id="panel-image" class="tab-panel">
+            <div class="generator-grid">
+                <div class="card form-card">
+                    <div class="card-header">
+                        <h2 class="card-title">🖼️ Image Generator</h2>
+                        <p class="card-desc">Generate stunning social media images with AI</p>
+                        <div class="usage-stats" id="image-usage-stats"></div>
+                    </div>
+                    <form id="image-form" class="gen-form">
+                        <div class="form-group">
+                            <label for="image-product">Product Name</label>
+                            <input type="text" id="image-product" placeholder="e.g. Nike Air Max" required
+                                maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="image-style">Visual Style</label>
+                            <select id="image-style" required>
+                                <option value="minimalist">Minimalist</option>
+                                <option value="vibrant" selected>Vibrant</option>
+                                <option value="corporate">Corporate</option>
+                                <option value="futuristic">Futuristic</option>
+                                <option value="retro">Retro</option>
+                                <option value="elegant">Elegant</option>
+                                <option value="playful">Playful</option>
+                                <option value="dark">Dark</option>
+                                <option value="neon">Neon</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="image-platform">Platform</label>
+                            <select id="image-platform" required>
+                                <option value="instagram" selected>Instagram (1080×1080)</option>
+                                <option value="linkedin">LinkedIn (1200×627)</option>
+                                <option value="twitter">Twitter / X (1200×675)</option>
+                                <option value="facebook">Facebook (1200×630)</option>
+                                <option value="youtube">YouTube (1280×720)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="image-count">Number of Images: <span id="image-count-val"
+                                    class="range-val">1</span></label>
+                            <input type="range" id="image-count" min="1" max="4" step="1" value="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="image-submit">
+                            <span class="btn-text">Generate Image</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card result-card" id="image-result-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Generated Image</h2>
+                        <div class="result-actions">
+                            <button class="btn-icon-sm" id="image-download-btn" title="Download image">⬇️</button>
+                        </div>
+                    </div>
+                    <div class="result-content" id="image-result">
+                        <div class="empty-state">
+                            <span class="empty-icon">🖼️</span>
+                            <p>Your generated image will appear here</p>
+                        </div>
+                    </div>
+                    <div class="image-prompt-box hidden" id="image-prompt-box">
+                        <p class="prompt-label">AI Prompt Used:</p>
+                        <p class="prompt-text" id="image-prompt-text"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ─── Footer ───────────────────────────────────────────────────── -->
+    <footer class="footer">
+        <p><span class="gradient-text">Prism AI</span> · Groq + Hugging Face + FLUX</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
