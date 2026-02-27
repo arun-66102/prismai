@@ -114,13 +114,14 @@ document.getElementById('saveTierBtn').addEventListener('click', async () => {
     const newRole = document.getElementById('newRoleSelect').value;
     const newStatus = document.getElementById('newStatusSelect').value === "true";
     const btn = document.getElementById('saveTierBtn');
+    const API_BASE = window.location.origin;
 
     btn.textContent = 'Saving...';
     btn.disabled = true;
 
     try {
         const token = localStorage.getItem('prism_access_token');
-        const response = await fetch(`http://127.0.0.1:8000/admin/users/${currentEditUserId}`, {
+        const response = await fetch(`${API_BASE}/admin/users/${currentEditUserId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -154,8 +155,9 @@ document.getElementById('saveTierBtn').addEventListener('click', async () => {
 
 async function apiGet(endpoint) {
     const token = localStorage.getItem('prism_access_token');
+    const API_BASE = window.location.origin;
 
-    const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`
