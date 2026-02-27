@@ -2,6 +2,22 @@
     "version": 2,
     "rewrites": [
         {
+            "source": "/health",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/auth/(.*)",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/generate-(.*)",
+            "destination": "/api/index"
+        },
+        {
+            "source": "/admin/(.*)",
+            "destination": "/api/index"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index"
         },
