@@ -3,11 +3,7 @@
     "builds": [
         {
             "src": "api/index.py",
-            "use": "@vercel/python",
-            "config": {
-                "installCommand": "pip install -r backend/requirements.txt",
-                "includeFiles": "backend/**"
-            }
+            "use": "@vercel/python"
         },
         {
             "src": "frontend/**",
