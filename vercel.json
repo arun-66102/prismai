@@ -1,11 +1,12 @@
 {
     "version": 2,
-        "builds": [
+    "builds": [
         {
             "src": "api/index.py",
             "use": "@vercel/python",
             "config": {
-                "installCommand": "pip install -r backend/requirements.txt"
+                "installCommand": "pip install -r backend/requirements.txt",
+                "includeFiles": "backend/**"
             }
         },
         {
@@ -16,27 +17,27 @@
     "rewrites": [
         {
             "source": "/health",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/auth/(.*)",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/generate-(.*)",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/admin/(.*)",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/api/(.*)",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/images/(.*)",
-            "destination": "/api/index"
+            "destination": "/api/index.py"
         },
         {
             "source": "/static/(.*)",
