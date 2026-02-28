@@ -1,12 +1,16 @@
 {
     "version": 2,
-    "builds": [
+        "builds": [
         {
             "src": "api/index.py",
             "use": "@vercel/python",
             "config": {
                 "installCommand": "pip install -r backend/requirements.txt"
             }
+        },
+        {
+            "src": "frontend/**",
+            "use": "@vercel/static"
         }
     ],
     "rewrites": [
