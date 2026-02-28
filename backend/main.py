@@ -46,7 +46,13 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    await init_db()
+    try:
+        await init_db()
+        logger.info("Database initialized successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize database during startup: {e}")
+        # We don't raise here so the app can still boot and serve /health
+        # Endpoints that require DB will fail gracefully when they try to get a connection
 
 # CORS — allow all origins during development
 app.add_middleware(
@@ -110,7 +116,16 @@ async def home():
 @app.get("/health")
 async def health():
     """Simple health-check endpoint."""
-    return {"status": "ok"}
+    # Try to ping the database for a more accurate health check
+    db_status = "ok"
+    try:
+        pool = await database.get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("SELECT 1")
+    except Exception as e:
+        db_status = f"unreachable: {str(e)}"
+        
+    return {"status": "ok", "database": db_status}
 
 
 @app.post("/auth/register", response_model=TokenResponse)
