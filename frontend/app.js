@@ -460,8 +460,8 @@ $("#image-form").addEventListener("submit", async (e) => {
 
         // Store URLs for download
         lastImageUrls = data.images.map((img) => ({
-            url: `${API_BASE}${img.image_url}`,
-            filename: img.filename,
+            url: img.image_url.startsWith("data:") ? img.image_url : `${API_BASE}${img.image_url}`,
+            filename: img.filename || `generated-${Date.now()}.png`,
         }));
 
         // Render images
@@ -473,7 +473,7 @@ $("#image-form").addEventListener("submit", async (e) => {
 
         data.images.forEach((img) => {
             const imgEl = document.createElement("img");
-            imgEl.src = `${API_BASE}${img.image_url}`;
+            imgEl.src = img.image_url.startsWith("data:") ? img.image_url : `${API_BASE}${img.image_url}`;
             imgEl.alt = `Generated image for ${product_name}`;
             imgEl.loading = "lazy";
             // Click to open full-size in new tab
