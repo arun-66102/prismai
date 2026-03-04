@@ -82,7 +82,7 @@ $$(".tab-btn").forEach((btn) => {
     });
 });
 
-function switchTab(tabId) {
+function switchTab(tabId, updateHistory = true) {
     // Hide auth buttons in navbar if switching to them
     const authBtn = $("#nav-login-btn");
     const navbarTabs = $(".navbar-tabs");
@@ -112,6 +112,10 @@ function switchTab(tabId) {
     if (btn) btn.classList.add("active");
     const panel = $(`#panel-${tabId}`);
     if (panel) panel.classList.add("active");
+
+    if (updateHistory) {
+        window.history.pushState({ tabId: tabId }, "", `#${tabId}`);
+    }
 }
 
 // ─── Range Sliders ──────────────────────────────────────────────────────
@@ -234,8 +238,11 @@ function updateAuthUI() {
 
         // Switch out of auth panels if we are there
         const activeTab = $(".tab-btn.active")?.dataset.tab;
-        if (!activeTab || activeTab === "login" || activeTab === "register" || activeTab === "landing") {
-            switchTab("blog");
+        const hashTab = window.location.hash.substring(1);
+        const targetTab = (hashTab && !["login", "register", "landing"].includes(hashTab)) ? hashTab : "blog";
+
+        if (!activeTab || ["login", "register", "landing"].includes(activeTab)) {
+            switchTab(targetTab);
         }
     } else {
         // Render Login button
@@ -245,8 +252,13 @@ function updateAuthUI() {
         // Clear usage stats
         $$(".usage-stats").forEach(el => el.innerHTML = "");
 
-        // Force to landing panel
-        switchTab("landing");
+        // Read hash to see if they specifically wanted login/register, otherwise landing
+        const hashTab = window.location.hash.substring(1);
+        if (hashTab === "login" || hashTab === "register") {
+            switchTab(hashTab);
+        } else {
+            switchTab("landing");
+        }
     }
 }
 
@@ -520,4 +532,20 @@ $("#image-download-btn").addEventListener("click", () => {
         return;
     }
     lastImageUrls.forEach((img) => downloadImage(img.url, img.filename));
+});
+
+// Handle browser back/forward navigation
+window.addEventListener("popstate", (event) => {
+    // If the history state exists, switch to that tab without pushing a NEW history event
+    if (event.state && event.state.tabId) {
+        switchTab(event.state.tabId, false);
+    } else {
+        // Fallback: Read the URL hash (e.g., "#login") if there's no state, or default to landing
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            switchTab(hash, false);
+        } else {
+            switchTab(currentUser ? "blog" : "landing", false);
+        }
+    }
 });
