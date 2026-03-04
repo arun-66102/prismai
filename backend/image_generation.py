@@ -198,18 +198,24 @@ async def generate_image(
         if watermark:
             image = _apply_watermark(image)
 
-        # Save the PIL Image to disk
+        # Convert the PIL Image to a base64 Data URI instead of saving to disk (serverless-friendly)
+        import base64
+        from io import BytesIO
+        
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        data_uri = f"data:image/png;base64,{img_str}"
+        
         slug = product_name.replace(" ", "_").lower()
         filename = f"{slug}_{platform_lower}_{uuid.uuid4().hex[:8]}.png"
-        filepath = IMAGE_DIR / filename
 
-        await asyncio.to_thread(image.save, str(filepath))
         saved_images.append({
             "index": idx,
             "filename": filename,
-            "image_url": f"/images/{filename}",
+            "image_url": data_uri,
         })
-        logger.info("Saved image: %s", filename)
+        logger.info("Generated image as base64 payload: %s", filename)
 
     return {
         "status": "success",
