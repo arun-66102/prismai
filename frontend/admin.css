@@ -85,7 +85,7 @@
 .stat-card:hover {
     transform: translateY(-5px);
     border-color: var(--border-active);
-    box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 10px 30px -10px rgba(0, 240, 255, 0.4);
     background: var(--bg-card-hover);
 }
 
@@ -225,9 +225,9 @@
 }
 
 .role-badge.admin {
-    background-color: rgba(124, 58, 237, 0.15);
-    color: #c4b5fd;
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background-color: rgba(0, 240, 255, 0.15);
+    color: var(--accent-1);
+    border: 1px solid rgba(0, 240, 255, 0.4);
 }
 
 .role-badge.user {
@@ -243,15 +243,15 @@
 }
 
 .tier-badge.pro {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: #93c5fd;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background-color: rgba(0, 240, 255, 0.15);
+    color: var(--accent-1);
+    border: 1px solid rgba(0, 240, 255, 0.4);
 }
 
 .tier-badge.business {
-    background-color: rgba(245, 158, 11, 0.15);
-    color: #fcd34d;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    background-color: rgba(0, 240, 255, 0.15);
+    color: var(--accent-1);
+    border: 1px solid rgba(0, 240, 255, 0.4);
 }
 
 .status-badge {
@@ -266,14 +266,15 @@
 
 .status-badge.active {
     background-color: rgba(16, 185, 129, 0.15);
-    color: #6ee7b7;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+    /* Tailwind green-400 */
+    border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 .status-badge.suspended {
     background-color: rgba(239, 68, 68, 0.15);
-    color: #fca5a5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--error);
+    border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .loading-cell {
