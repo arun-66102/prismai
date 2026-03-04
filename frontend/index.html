@@ -30,18 +30,17 @@
     <!-- ─── Navbar ───────────────────────────────────────────────────── -->
     <nav class="navbar">
         <div class="navbar-brand">
-            <span class="brand-icon">◈</span>
             <span class="brand-text">Prism <span class="brand-highlight">AI</span></span>
         </div>
         <div class="navbar-tabs">
             <button class="tab-btn active" data-tab="blog" id="tab-blog">
-                <span class="tab-icon">📝</span> Blog
+                Blog
             </button>
             <button class="tab-btn" data-tab="video" id="tab-video">
-                <span class="tab-icon">🎬</span> Video Script
+                Video Script
             </button>
             <button class="tab-btn" data-tab="image" id="tab-image">
-                <span class="tab-icon">🖼️</span> Image
+                Image
             </button>
         </div>
         <div class="navbar-status" id="auth-status-container">
@@ -53,10 +52,60 @@
     <!-- ─── Main Content ─────────────────────────────────────────────── -->
     <main class="main-content">
 
-        <!-- Hero Section -->
-        <section class="hero" id="hero-section">
+        <!-- Hero Section (for logged in users) -->
+        <section class="hero" id="hero-section" style="display: none;">
             <h1 class="hero-title">AI-Powered <span class="gradient-text">Content Generation</span></h1>
             <p class="hero-subtitle">Create stunning blogs, video scripts, and social media images in seconds</p>
+        </section>
+
+        <!-- ═══ Landing Page ═══ -->
+        <section id="panel-landing" class="tab-panel active">
+            <div class="landing-container">
+                <div class="landing-hero">
+                    <h1 class="landing-title">Create <span class="gradient-text">10x Faster</span> with AI</h1>
+                    <p class="landing-subtitle">The ultimate creative suite. Generate SEO blogs, engaging video scripts,
+                        and stunning neon social media images in seconds.</p>
+                    <button class="btn btn-primary cta-btn" id="landing-register-btn">
+                        <span class="btn-text">Get Started Free</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                    <p class="landing-login-hint">Already have an account? <a href="#" id="landing-login-link"
+                            class="text-btn">Login here</a></p>
+                </div>
+
+                <div class="landing-features">
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg></div>
+                        <h3>Blog Generator</h3>
+                        <p>Write fully optimized, engaging articles tailored to your audience's tone and preferred
+                            length instantly.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                            </svg></div>
+                        <h3>Video Scripts</h3>
+                        <p>Generate precise, highly engaging video hook & script outlines for YouTube, TikTok, or
+                            Instagram Reels.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg></div>
+                        <h3>Image Synthesis</h3>
+                        <p>Leverage FLUX to synthesize breathtaking modern social media assets to elevate
+                            your brand.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══ Auth Panels ═══ -->
@@ -118,11 +167,11 @@
         </section>
 
         <!-- ═══ Blog Generator Tab ═══ -->
-        <section id="panel-blog" class="tab-panel active">
+        <section id="panel-blog" class="tab-panel">
             <div class="generator-grid">
                 <div class="card form-card">
                     <div class="card-header">
-                        <h2 class="card-title">📝 Blog Generator</h2>
+                        <h2 class="card-title">Blog Generator</h2>
                         <p class="card-desc">Generate SEO-optimized blog articles for your product</p>
                         <div class="usage-stats" id="blog-usage-stats"></div>
                     </div>
@@ -159,13 +208,25 @@
                     <div class="card-header">
                         <h2 class="card-title">Generated Blog</h2>
                         <div class="result-actions">
-                            <button class="btn-icon-sm" id="blog-copy" title="Copy to clipboard">📋</button>
-                            <button class="btn-icon-sm" id="blog-download" title="Download as text">⬇️</button>
+                            <button class="btn-icon-sm" id="blog-copy" title="Copy to clipboard"><svg width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg></button>
+                            <button class="btn-icon-sm" id="blog-download" title="Download as text"><svg width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg></button>
                         </div>
                     </div>
                     <div class="result-content" id="blog-result">
                         <div class="empty-state">
-                            <span class="empty-icon">📝</span>
+                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg></span>
                             <p>Your generated blog will appear here</p>
                         </div>
                     </div>
@@ -178,7 +239,7 @@
             <div class="generator-grid">
                 <div class="card form-card">
                     <div class="card-header">
-                        <h2 class="card-title">🎬 Video Script Generator</h2>
+                        <h2 class="card-title">Video Script Generator</h2>
                         <p class="card-desc">Create engaging video scripts with structured sections</p>
                         <div class="usage-stats" id="video-usage-stats"></div>
                     </div>
@@ -214,13 +275,26 @@
                     <div class="card-header">
                         <h2 class="card-title">Generated Script</h2>
                         <div class="result-actions">
-                            <button class="btn-icon-sm" id="video-copy" title="Copy to clipboard">📋</button>
-                            <button class="btn-icon-sm" id="video-download" title="Download as text">⬇️</button>
+                            <button class="btn-icon-sm" id="video-copy" title="Copy to clipboard"><svg width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg></button>
+                            <button class="btn-icon-sm" id="video-download" title="Download as text"><svg width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg></button>
                         </div>
                     </div>
                     <div class="result-content" id="video-result">
                         <div class="empty-state">
-                            <span class="empty-icon">🎬</span>
+                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polygon points="23 7 16 12 23 17 23 7" />
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                </svg></span>
                             <p>Your generated script will appear here</p>
                         </div>
                     </div>
@@ -233,7 +307,7 @@
             <div class="generator-grid">
                 <div class="card form-card">
                     <div class="card-header">
-                        <h2 class="card-title">🖼️ Image Generator</h2>
+                        <h2 class="card-title">Image Generator</h2>
                         <p class="card-desc">Generate stunning social media images with AI</p>
                         <div class="usage-stats" id="image-usage-stats"></div>
                     </div>
@@ -283,12 +357,22 @@
                     <div class="card-header">
                         <h2 class="card-title">Generated Image</h2>
                         <div class="result-actions">
-                            <button class="btn-icon-sm" id="image-download-btn" title="Download image">⬇️</button>
+                            <button class="btn-icon-sm" id="image-download-btn" title="Download image"><svg width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg></button>
                         </div>
                     </div>
                     <div class="result-content" id="image-result">
                         <div class="empty-state">
-                            <span class="empty-icon">🖼️</span>
+                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg></span>
                             <p>Your generated image will appear here</p>
                         </div>
                     </div>
