@@ -85,15 +85,27 @@ $$(".tab-btn").forEach((btn) => {
 function switchTab(tabId) {
     // Hide auth buttons in navbar if switching to them
     const authBtn = $("#nav-login-btn");
+    const navbarTabs = $(".navbar-tabs");
+
     if (authBtn) {
-        if (tabId === "login" || tabId === "register") authBtn.style.display = "none";
+        // Hide login button on auth pages or the landing page itself
+        if (tabId === "login" || tabId === "register" || tabId === "landing") authBtn.style.display = "none";
         else if (!currentUser) authBtn.style.display = "block";
+    }
+
+    // Hide generator tabs in the navbar if not logged in or on landing/auth panels
+    if (navbarTabs) {
+        if (tabId === "landing" || tabId === "login" || tabId === "register") {
+            navbarTabs.style.display = "none";
+        } else {
+            navbarTabs.style.display = "flex";
+        }
     }
 
     // Deactivate all
     $$(".tab-btn").forEach((b) => b.classList.remove("active"));
     $$(".tab-panel").forEach((p) => p.classList.remove("active"));
-    $("#hero-section").style.display = (tabId === "login" || tabId === "register") ? "none" : "block";
+    $("#hero-section").style.display = (tabId === "login" || tabId === "register" || tabId === "landing") ? "none" : "block";
 
     // Activate selected
     const btn = $(`#tab-${tabId}`);
@@ -174,6 +186,10 @@ async function apiGet(endpoint) {
 $("#show-register-btn")?.addEventListener("click", () => switchTab("register"));
 $("#show-login-btn")?.addEventListener("click", () => switchTab("login"));
 
+// Listeners for landing page CTA
+$("#landing-register-btn")?.addEventListener("click", () => switchTab("register"));
+$("#landing-login-link")?.addEventListener("click", (e) => { e.preventDefault(); switchTab("login"); });
+
 // Open login from navbar
 $("#nav-login-btn")?.addEventListener("click", () => switchTab("login"));
 
@@ -218,7 +234,7 @@ function updateAuthUI() {
 
         // Switch out of auth panels if we are there
         const activeTab = $(".tab-btn.active")?.dataset.tab;
-        if (!activeTab || activeTab === "login" || activeTab === "register") {
+        if (!activeTab || activeTab === "login" || activeTab === "register" || activeTab === "landing") {
             switchTab("blog");
         }
     } else {
@@ -229,8 +245,8 @@ function updateAuthUI() {
         // Clear usage stats
         $$(".usage-stats").forEach(el => el.innerHTML = "");
 
-        // Force to login panel
-        switchTab("login");
+        // Force to landing panel
+        switchTab("landing");
     }
 }
 
@@ -313,7 +329,7 @@ $("#login-form")?.addEventListener("submit", async (e) => {
         localStorage.setItem("prism_access_token", accessToken);
         localStorage.setItem("prism_refresh_token", refreshToken);
 
-        toast("Logged in successfully! 👋", "success");
+        toast("Logged in successfully!", "success");
         await fetchProfile(); // Automatically routes to app
 
         // Clear form
@@ -341,7 +357,7 @@ $("#register-form")?.addEventListener("submit", async (e) => {
         localStorage.setItem("prism_access_token", accessToken);
         localStorage.setItem("prism_refresh_token", refreshToken);
 
-        toast("Account created successfully! 🎉", "success");
+        toast("Account created successfully!", "success");
         await fetchProfile();
 
         // Clear form
@@ -379,7 +395,7 @@ $("#blog-form").addEventListener("submit", async (e) => {
         resultEl.style.whiteSpace = "pre-wrap";
         resultEl.textContent = data.generated_blog;
 
-        toast("Blog generated successfully! ✨", "success");
+        toast("Blog generated successfully!", "success");
         await fetchProfile(); // refresh usage stats
     } catch (err) {
         toast(`Error: ${err.message}`, "error");
@@ -421,7 +437,7 @@ $("#video-form").addEventListener("submit", async (e) => {
         resultEl.style.whiteSpace = "pre-wrap";
         resultEl.textContent = data.generated_script;
 
-        toast("Video script generated! 🎬", "success");
+        toast("Video script generated!", "success");
         await fetchProfile(); // refresh usage stats
     } catch (err) {
         toast(`Error: ${err.message}`, "error");
@@ -488,7 +504,7 @@ $("#image-form").addEventListener("submit", async (e) => {
         promptBox.classList.remove("hidden");
         $("#image-prompt-text").textContent = data.image_prompt;
 
-        toast("Image generated! 🖼️", "success");
+        toast("Image generated!", "success");
         await fetchProfile(); // refresh usage stats
     } catch (err) {
         toast(`Error: ${err.message}`, "error");
