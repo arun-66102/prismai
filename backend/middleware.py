@@ -75,7 +75,8 @@ def get_rate_limiter(endpoint: str):
         limits = RATE_LIMITS.get(tier, RATE_LIMITS["free"])
         limit = limits.get(endpoint)
         
-        if limit is None or limit == "unlimited":
+        # Handle string "inf" or "unlimited" values
+        if limit is None or str(limit).lower() in ("inf", "unlimited"):
             return user
             
         usage = await get_today_usage(user["id"], endpoint)
