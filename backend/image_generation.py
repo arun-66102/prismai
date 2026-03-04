@@ -155,6 +155,13 @@ async def generate_image(
     Returns:
         dict with status, metadata, image URLs, and the generated prompt
     """
+    
+    # First, verify that HF API KEY exists
+    import os
+    if not os.getenv("HF_API_KEY"):
+        logger.error("HF_API_KEY environment variable is not set. Hugging Face Inference will fail.")
+        # Raise explicitly so the user can see in Vercel logs why it fails
+        raise ValueError("HF_API_KEY is missing from environment variables.")
     platform_lower = platform.lower()
     dimensions = PLATFORM_SIZES.get(platform_lower, {"width": 1024, "height": 1024})
 
@@ -164,7 +171,11 @@ async def generate_image(
     logger.info("Prompt generated (%d chars)", len(image_prompt))
 
     # Step 2 — Generate image(s) via Hugging Face Inference API
-    client = get_hf_client()
+    try:
+        client = get_hf_client()
+    except Exception as e:
+        logger.exception("Failed to initialize Hugging Face client")
+        raise e
     count = min(n, 4)
 
     logger.info(
@@ -187,12 +198,23 @@ async def generate_image(
             # Use seed + idx so each image in a batch is different but reproducible
             generate_kwargs["seed"] = seed + idx
 
-        image = await asyncio.to_thread(
-            client.text_to_image,
-            prompt=image_prompt,
-            model=DEFAULT_IMAGE_MODEL,
-            **generate_kwargs,
-        )
+        try:
+            image_result = await asyncio.to_thread(
+                client.text_to_image,
+                prompt=image_prompt,
+                model=DEFAULT_IMAGE_MODEL,
+                **generate_kwargs,
+            )
+            # HF might return either a PIL Image (if PIL is installed) or raw bytes
+            if not isinstance(image_result, Image.Image):
+                from io import BytesIO
+                image = Image.open(BytesIO(image_result))
+            else:
+                image = image_result
+                
+        except Exception as e:
+            logger.exception("Hugging Face API inference failed! This is often due to missing HF_API_KEY or model timeouts.")
+            raise e
 
         # Apply watermark
         if watermark:
