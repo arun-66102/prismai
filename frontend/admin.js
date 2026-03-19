@@ -3,6 +3,30 @@
 let currentEditUserId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Theme Toggle
+    function updateThemeUI(theme) {
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if (btn.dataset.themeVal === theme) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    if (window.getPrismTheme) {
+        const currentTheme = window.getPrismTheme();
+        updateThemeUI(currentTheme);
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newTheme = btn.dataset.themeVal;
+                window.setPrismTheme(newTheme);
+                updateThemeUI(newTheme);
+            });
+        });
+    }
+
     // Check if user is logged in
     const token = localStorage.getItem('prism_access_token');
     if (!token) {
