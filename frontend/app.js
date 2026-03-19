@@ -56,6 +56,30 @@ async function copyText(text) {
     }
 }
 
+// ─── Theme Initialization ───────────────────────────────────────────────
+function updateThemeUI(theme) {
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        if (btn.dataset.themeVal === theme) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+if (window.getPrismTheme) {
+    const currentTheme = window.getPrismTheme();
+    updateThemeUI(currentTheme);
+    
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const newTheme = btn.dataset.themeVal;
+            window.setPrismTheme(newTheme);
+            updateThemeUI(newTheme);
+        });
+    });
+}
+
 // ─── Health Check ───────────────────────────────────────────────────────
 async function checkHealth() {
     try {
