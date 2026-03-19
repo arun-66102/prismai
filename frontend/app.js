@@ -20,7 +20,11 @@ let accessToken = localStorage.getItem("prism_access_token");
 let refreshToken = localStorage.getItem("prism_refresh_token");
 
 // ─── Utilities ──────────────────────────────────────────────────────────
-function showLoading() { overlay.classList.remove("hidden"); }
+function showLoading(msg = "Loading...") { 
+    const textEl = document.querySelector(".loader-text");
+    if (textEl) textEl.textContent = msg;
+    overlay.classList.remove("hidden"); 
+}
 function hideLoading() { overlay.classList.add("hidden"); }
 
 function toast(message, type = "info") {
@@ -250,6 +254,11 @@ function updateAuthUI() {
             </div>
         `;
 
+        const greetingEl = document.getElementById("intro-greeting");
+        if (greetingEl) {
+            greetingEl.textContent = `Welcome, ${currentUser.name.split(" ")[0]}!`;
+        }
+
         // Show usage stats
         updateUsageStatsUI();
 
@@ -261,9 +270,10 @@ function updateAuthUI() {
         $("#nav-logout-btn").addEventListener("click", logout);
 
         // Switch out of auth panels if we are there
-        const activeTab = $(".tab-btn.active")?.dataset.tab;
+        const activePanel = $(".tab-panel.active");
+        const activeTab = activePanel ? activePanel.id.replace("panel-", "") : null;
         const hashTab = window.location.hash.substring(1);
-        const targetTab = (hashTab && !["login", "register", "landing"].includes(hashTab)) ? hashTab : "blog";
+        const targetTab = (hashTab && !["login", "register", "landing"].includes(hashTab)) ? hashTab : "intro";
 
         if (!activeTab || ["login", "register", "landing"].includes(activeTab)) {
             switchTab(targetTab);
@@ -341,7 +351,7 @@ $("#login-form")?.addEventListener("submit", async (e) => {
     const email = $("#login-email").value;
     const password = $("#login-password").value;
 
-    showLoading();
+    showLoading("Logging in...");
     try {
         // OAuth2 strict form data
         const formData = new URLSearchParams();
@@ -384,7 +394,7 @@ $("#register-form")?.addEventListener("submit", async (e) => {
     const email = $("#register-email").value.trim();
     const password = $("#register-password").value;
 
-    showLoading();
+    showLoading("Creating account...");
     try {
         const data = await apiPost("/auth/register", { name, email, password }, true);
 
@@ -406,7 +416,13 @@ $("#register-form")?.addEventListener("submit", async (e) => {
 });
 
 // Initialize app wrapper to fetch profile
-fetchProfile();
+const initHash = window.location.hash.substring(1);
+if (accessToken && !["login", "register", "landing"].includes(initHash)) {
+    showLoading("Loading Workspace...");
+}
+fetchProfile().finally(() => {
+    hideLoading();
+});
 
 // ─── Blog Generation ────────────────────────────────────────────────────
 let lastBlogContent = "";
@@ -420,7 +436,7 @@ $("#blog-form").addEventListener("submit", async (e) => {
 
     if (!product_name) return toast("Please enter a product name.", "error");
 
-    showLoading();
+    showLoading("Drafting Blog Article...");
     try {
         const data = await apiPost("/generate-blog", { product_name, tone, word_count });
         lastBlogContent = data.generated_blog;
@@ -463,7 +479,7 @@ $("#video-form").addEventListener("submit", async (e) => {
 
     if (!product_name) return toast("Please enter a product name.", "error");
 
-    showLoading();
+    showLoading("Writing Video Script...");
     try {
         const data = await apiPost("/generate-video-script", { product_name, tone, duration });
         lastVideoContent = data.generated_script;
@@ -506,7 +522,7 @@ $("#image-form").addEventListener("submit", async (e) => {
 
     if (!product_name) return toast("Please enter a product name.", "error");
 
-    showLoading();
+    showLoading("Synthesizing Image...");
     try {
         const data = await apiPost("/generate-image", { product_name, style, platform, n });
 
@@ -569,7 +585,7 @@ window.addEventListener("popstate", (event) => {
         if (hash) {
             switchTab(hash, false);
         } else {
-            switchTab(currentUser ? "blog" : "landing", false);
+            switchTab(currentUser ? "intro" : "landing", false);
         }
     }
 });

@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Prism AI — AI-powered Blog, Video Script & Image Generation">
     <title>Prism AI — Content Generation Suite</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <!-- Fonts included directly in styles.css -->
     <script src="/static/theme.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" sizes="192x192" type="image/png" href="/static/logo.png">
@@ -17,7 +14,7 @@
 
 <body>
 
-    <!-- ─── Loading Overlay ──────────────────────────────────────────── -->
+    <!-- ─── Loading Overlay ─── -->
     <div id="loading-overlay" class="loading-overlay hidden">
         <div class="loader">
             <div class="loader-prism"></div>
@@ -25,109 +22,134 @@
         </div>
     </div>
 
-    <!-- ─── Toast Container ──────────────────────────────────────────── -->
+    <!-- ─── Toast Container ─── -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- ─── Navbar ───────────────────────────────────────────────────── -->
+    <!-- ─── Navbar ─── -->
     <nav class="navbar">
         <div class="navbar-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+                </svg>
+            </div>
             <span class="brand-text">Prism <span class="brand-highlight">AI</span></span>
         </div>
-        <div class="navbar-tabs">
-            <button class="tab-btn active" data-tab="blog" id="tab-blog">
-                Blog
-            </button>
-            <button class="tab-btn" data-tab="video" id="tab-video">
-                Video Script
-            </button>
-            <button class="tab-btn" data-tab="image" id="tab-image">
-                Image
-            </button>
+        
+        <!-- We keep navbar-tabs hidden logic in CSS for small screens, but they exist for DOM hooks if needed -->
+        <div class="navbar-tabs tab-panel" id="panel-hero-hide">
+            <!-- Hidden intentionally from Sand&Signal prompt (not requested in center nav), but let's just make it empty since JS only needs tab-btns elsewhere -->
         </div>
-        <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem;">
-            <div class="theme-toggle" id="theme-toggle-group">
-                <button class="theme-btn" data-theme-val="light" title="Light Theme">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                </button>
-                <button class="theme-btn" data-theme-val="dark" title="Dark Theme">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
-                <button class="theme-btn" data-theme-val="system" title="System Default">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                </button>
-            </div>
+
+        <div class="navbar-right">
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="custom-theme-toggle" onclick="
+                const current = document.documentElement.getAttribute('data-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                window.setPrismTheme(next);
+                document.getElementById('icon-sun').style.display = next === 'dark' ? 'block' : 'none';
+                document.getElementById('icon-moon').style.display = next === 'dark' ? 'none' : 'block';
+            ">
+                <svg id="icon-sun" style="display:none; width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg id="icon-moon" style="display:block; width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    const isDark = (window.getPrismTheme() === 'dark') || (window.getPrismTheme() === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if(isDark) {
+                        document.getElementById('icon-sun').style.display = 'block';
+                        document.getElementById('icon-moon').style.display = 'none';
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    }
+                });
+            </script>
+            
             <div class="navbar-status" id="auth-status-container">
-                <!-- Content will be injected by JS based on auth state -->
-                <button class="btn-icon-sm" id="nav-login-btn">Login</button>
+                <button class="nav-login" id="nav-login-btn">Login</button>
+                <button class="nav-get-started" id="landing-register-btn-header" onclick="document.querySelector('#landing-register-btn')?.click()">Get Started</button>
             </div>
         </div>
     </nav>
 
-    <!-- ─── Main Content ─────────────────────────────────────────────── -->
+    <!-- ─── Main Content ─── -->
     <main class="main-content">
 
-        <!-- Hero Section (for logged in users) -->
-        <section class="hero" id="hero-section" style="display: none;">
-            <h1 class="hero-title">AI-Powered <span class="gradient-text">Content Generation</span></h1>
-            <p class="hero-subtitle">Create stunning blogs, video scripts, and social media images in seconds</p>
-        </section>
+        <!-- Dummy element to prevent app.js from crashing when checking #hero-section -->
+        <div id="hero-section" style="display: none;"></div>
 
-        <!-- ═══ Landing Page ═══ -->
+        <!-- ═══ Landing & Hero wrapper ═══ -->
+        <!-- JS toggles #panel-landing for non-logged in users. We will merge hero and landing. -->
         <section id="panel-landing" class="tab-panel active">
-            <div class="landing-container">
-                <div class="landing-hero">
-                    <h1 class="landing-title">Create <span class="gradient-text">10x Faster</span> with AI</h1>
-                    <p class="landing-subtitle">The ultimate creative suite. Generate SEO blogs, engaging video scripts,
-                        and stunning neon social media images in seconds.</p>
-                    <button class="btn btn-primary cta-btn" id="landing-register-btn">
-                        <span class="btn-text">Get Started Free</span>
-                        <span class="btn-icon">→</span>
-                    </button>
-                    <p class="landing-login-hint">Already have an account? <a href="#" id="landing-login-link"
-                            class="text-btn">Login here</a></p>
+            
+            <!-- Hero Section -->
+            <div class="hero-wrapper">
+                <div class="hero-badge">
+                    <div class="dot"></div>
+                    AI Content Suite
                 </div>
-
-                <div class="landing-features">
-                    <div class="feature-card">
-                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                            </svg></div>
-                        <h3>Blog Generator</h3>
-                        <p>Write fully optimized, engaging articles tailored to your audience's tone and preferred
-                            length instantly.</p>
+                <h1 class="hero-title">The content engine that <em>performs.</em></h1>
+                <p class="hero-subtitle">The ultimate creative suite. Generate SEO blogs, engaging video scripts, and stunning social media images in seconds.</p>
+                <div class="hero-ctas">
+                    <button class="btn btn-primary" id="landing-register-btn">
+                        Get Started Free <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <a href="#" class="btn btn-secondary" id="landing-login-link">Login to Account</a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">10×</span>
+                        <span class="stat-label">Faster</span>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <polygon points="23 7 16 12 23 17 23 7" />
-                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                            </svg></div>
-                        <h3>Video Scripts</h3>
-                        <p>Generate precise, highly engaging video hook & script outlines for YouTube, TikTok, or
-                            Instagram Reels.</p>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">AI Tools</span>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <polyline points="21 15 16 10 5 21" />
-                            </svg></div>
-                        <h3>Image Synthesis</h3>
-                        <p>Leverage FLUX to synthesize breathtaking modern social media assets to elevate
-                            your brand.</p>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Platforms</span>
                     </div>
                 </div>
             </div>
+
+            <!-- How It Works static section for landing -->
+            <div class="how-it-works">
+                <div class="hiw-container">
+                    <div class="hiw-header">
+                        <h2 class="hiw-title serif">Built for speed and precision</h2>
+                        <p class="hiw-subtitle">Generate high-quality content in three simple steps.</p>
+                    </div>
+                    <div class="hiw-grid">
+                        <div class="hiw-step">
+                            <div class="hiw-num">01</div>
+                            <h3 class="hiw-step-title">Select Tool</h3>
+                            <p class="hiw-step-desc">Choose between Blog, Video Script, or Image generation based on your content needs.</p>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="hiw-num">02</div>
+                            <h3 class="hiw-step-title">Provide Context</h3>
+                            <p class="hiw-step-desc">Input your product details, desired tone, and adjust specific parameters like duration or style.</p>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="hiw-num">03</div>
+                            <h3 class="hiw-step-title">Generate & Export</h3>
+                            <p class="hiw-step-desc">Let our AI perform the heavy lifting. Review the result, copy, or download instantly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
+
 
         <!-- ═══ Auth Panels ═══ -->
         <section id="panel-login" class="tab-panel auth-panel">
-            <div class="card form-card auth-card">
-                <div class="card-header">
-                    <h2 class="card-title">Welcome Back</h2>
-                    <p class="card-desc">Login to generate content</p>
+            <div class="auth-card">
+                <div class="result-header" style="flex-direction: column; align-items: flex-start;">
+                    <h2 class="result-title serif" style="font-size: 32px">Welcome Back</h2>
+                    <p style="color: var(--text-2); font-size: 14px; margin-top: 4px;">Login to generate content</p>
                 </div>
                 <form id="login-form" class="gen-form">
                     <div class="form-group">
@@ -138,22 +160,21 @@
                         <label for="login-password">Password</label>
                         <input type="password" id="login-password" placeholder="••••••••" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" id="login-submit">
-                        <span class="btn-text">Login</span>
+                    <button type="submit" class="btn btn-primary" id="login-submit" style="width: 100%; margin-top: 16px;">
+                        Login
                     </button>
                     <div class="auth-links">
-                        <button type="button" class="text-btn" id="show-register-btn">Don't have an account? Sign
-                            up</button>
+                        <button type="button" class="text-btn" id="show-register-btn">Don't have an account? Sign up</button>
                     </div>
                 </form>
             </div>
         </section>
 
         <section id="panel-register" class="tab-panel auth-panel">
-            <div class="card form-card auth-card">
-                <div class="card-header">
-                    <h2 class="card-title">Create Account</h2>
-                    <p class="card-desc">Start generating content today</p>
+            <div class="auth-card">
+                <div class="result-header" style="flex-direction: column; align-items: flex-start;">
+                    <h2 class="result-title serif" style="font-size: 32px">Create Account</h2>
+                    <p style="color: var(--text-2); font-size: 14px; margin-top: 4px;">Start generating content today</p>
                 </div>
                 <form id="register-form" class="gen-form">
                     <div class="form-group">
@@ -166,82 +187,153 @@
                     </div>
                     <div class="form-group">
                         <label for="register-password">Password</label>
-                        <input type="password" id="register-password" placeholder="Min 8 characters" required
-                            minlength="8">
+                        <input type="password" id="register-password" placeholder="Min 8 characters" required minlength="8">
                     </div>
-                    <button type="submit" class="btn btn-primary" id="register-submit">
-                        <span class="btn-text">Sign Up</span>
+                    <button type="submit" class="btn btn-primary" id="register-submit" style="width: 100%; margin-top: 16px;">
+                        Sign Up
                     </button>
                     <div class="auth-links">
-                        <button type="button" class="text-btn" id="show-login-btn">Already have an account?
-                            Login</button>
+                        <button type="button" class="text-btn" id="show-login-btn">Already have an account? Login</button>
                     </div>
                 </form>
             </div>
         </section>
 
+        <!-- ═══ Shared App Core ═══ -->
+        <!-- We will use a shared shell for the layout, but JS expects #panel-blog, #panel-video to hold their forms! -->
+
+        <!-- ═══ Intro Dashboard Panel ═══ -->
+        <section id="panel-intro" class="tab-panel">
+            <div class="workspace-wrapper" style="display: flex; align-items: center; justify-content: center; min-height: 70vh; flex-direction: column;">
+                <div style="text-align: center; margin-bottom: 3rem; margin-top: 2rem;">
+                    <h2 id="intro-greeting" class="serif" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Select a Tool</h2>
+                    <p style="color: var(--text-2);">Choose what you'd like to generate today.</p>
+                </div>
+                <!-- Feature Cards -->
+                <div class="feature-cards-grid" id="app-feature-cards">
+            <div class="feature-card tab-btn fc-card-sync active" data-tab="blog">
+                <div class="bottom-bar"></div>
+                <div class="fc-top">
+                    <div class="fc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </div>
+                    <div class="fc-tag">SEO</div>
+                </div>
+                <h3 class="fc-title">Blog Generator</h3>
+                <p class="fc-desc">Write fully optimized, engaging articles tailored to your audience instantly.</p>
+                <div class="fc-footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    Open Tool
+                </div>
+            </div>
+            
+            <div class="feature-card tab-btn fc-card-sync" data-tab="video">
+                <div class="bottom-bar"></div>
+                <div class="fc-top">
+                    <div class="fc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    </div>
+                    <div class="fc-tag">Script</div>
+                </div>
+                <h3 class="fc-title">Video Scripts</h3>
+                <p class="fc-desc">Generate precise video hook & script outlines for social media platforms.</p>
+                <div class="fc-footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    Open Tool
+                </div>
+            </div>
+
+            <div class="feature-card tab-btn fc-card-sync" data-tab="image">
+                <div class="bottom-bar"></div>
+                <div class="fc-top">
+                    <div class="fc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
+                    <div class="fc-tag">FLUX</div>
+                </div>
+                <h3 class="fc-title">Image Synthesis</h3>
+                <p class="fc-desc">Leverage FLUX to synthesize breathtaking modern assets to elevate your brand.</p>
+                <div class="fc-footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    Open Tool
+                </div>
+            </div>
+        </div>
+            </div>
+        </section>
+
+
+        <!-- We use inline styles to show the workspace framework only when NOT in landing/auth -->
+        <!-- Since JS toggles "active" class on #panel-blog etc., we will inject the workspace structural shell inside each panel, to guarantee it maps perfectly without touching JS logic. -->
+
         <!-- ═══ Blog Generator Tab ═══ -->
         <section id="panel-blog" class="tab-panel">
-            <div class="generator-grid">
-                <div class="card form-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Blog Generator</h2>
-                        <p class="card-desc">Generate SEO-optimized blog articles for your product</p>
-                        <div class="usage-stats" id="blog-usage-stats"></div>
+            <div class="workspace-wrapper" style="padding-top: 48px;">
+                <!-- Tool Hero -->
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <div class="fc-icon" style="margin: 0 auto 1rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     </div>
-                    <form id="blog-form" class="gen-form">
-                        <div class="form-group">
-                            <label for="blog-product">Product Name</label>
-                            <input type="text" id="blog-product" placeholder="e.g. Tesla Model S" required
-                                maxlength="100">
-                        </div>
-                        <div class="form-group">
-                            <label for="blog-tone">Tone</label>
-                            <select id="blog-tone" required>
-                                <option value="Professional">Professional</option>
-                                <option value="Casual">Casual</option>
-                                <option value="Informative" selected>Informative</option>
-                                <option value="Persuasive">Persuasive</option>
-                                <option value="Humorous">Humorous</option>
-                                <option value="Inspirational">Inspirational</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="blog-words">Word Count: <span id="blog-words-val"
-                                    class="range-val">500</span></label>
-                            <input type="range" id="blog-words" min="100" max="3000" step="100" value="500">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="blog-submit">
-                            <span class="btn-text">Generate Blog</span>
-                            <span class="btn-icon">→</span>
-                        </button>
-                    </form>
+                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Blog Generator</h2>
+                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Write fully optimized, engaging articles tailored to your audience instantly.</p>
                 </div>
-
-                <div class="card result-card" id="blog-result-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Generated Blog</h2>
-                        <div class="result-actions">
-                            <button class="btn-icon-sm" id="blog-copy" title="Copy to clipboard"><svg width="16"
-                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                </svg></button>
-                            <button class="btn-icon-sm" id="blog-download" title="Download as text"><svg width="16"
-                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="7 10 12 15 17 10" />
-                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg></button>
+                <div class="workspace-shell">
+                    <div class="workspace-header">
+                        <div class="workspace-tabs">
+                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
+                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
+                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Blog Generator</span>
+                        </div>
+                        <div class="ws-status">
+                            <div class="ws-status-dot"></div>
+                            Ready
                         </div>
                     </div>
-                    <div class="result-content" id="blog-result">
-                        <div class="empty-state">
-                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                                </svg></span>
-                            <p>Your generated blog will appear here</p>
+                    <div class="workspace-body">
+                        <!-- Left Form -->
+                        <div class="ws-form-col">
+                            <form id="blog-form" class="gen-form">
+                                <div class="form-group" style="padding-bottom: 8px;">
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="blog-usage-stats"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="blog-product">Product Name</label>
+                                    <input type="text" id="blog-product" placeholder="e.g. Tesla Model S" required maxlength="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="blog-tone">Tone</label>
+                                    <select id="blog-tone" required>
+                                        <option value="Professional">Professional</option>
+                                        <option value="Casual">Casual</option>
+                                        <option value="Informative" selected>Informative</option>
+                                        <option value="Persuasive">Persuasive</option>
+                                        <option value="Humorous">Humorous</option>
+                                        <option value="Inspirational">Inspirational</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="blog-words">Word Count: <span id="blog-words-val" class="range-val">500</span></label>
+                                    <input type="range" id="blog-words" min="100" max="3000" step="100" value="500">
+                                </div>
+                                <button type="submit" class="btn btn-submit" id="blog-submit">Generate</button>
+                            </form>
+                        </div>
+                        <!-- Right Output -->
+                        <div class="ws-output-col">
+                            <div class="result-header">
+                                <h2 class="result-title">Generated Blog</h2>
+                                <div class="result-actions">
+                                    <button class="btn-icon-sm" id="blog-copy" title="Copy to clipboard"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg></button>
+                                    <button class="btn-icon-sm" id="blog-download" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg></button>
+                                </div>
+                            </div>
+                            <div class="ws-output-area">
+                                <div class="result-content-box" id="blog-result"></div>
+                                <div class="output-placeholder" id="blog-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                    Your output will appear here
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,66 +342,71 @@
 
         <!-- ═══ Video Script Tab ═══ -->
         <section id="panel-video" class="tab-panel">
-            <div class="generator-grid">
-                <div class="card form-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Video Script Generator</h2>
-                        <p class="card-desc">Create engaging video scripts with structured sections</p>
-                        <div class="usage-stats" id="video-usage-stats"></div>
+            <div class="workspace-wrapper" style="padding-top: 48px;">
+                <!-- Tool Hero -->
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <div class="fc-icon" style="margin: 0 auto 1rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                     </div>
-                    <form id="video-form" class="gen-form">
-                        <div class="form-group">
-                            <label for="video-product">Product Name</label>
-                            <input type="text" id="video-product" placeholder="e.g. iPhone 16 Pro" required
-                                maxlength="100">
-                        </div>
-                        <div class="form-group">
-                            <label for="video-tone">Tone</label>
-                            <select id="video-tone" required>
-                                <option value="Professional">Professional</option>
-                                <option value="Casual">Casual</option>
-                                <option value="Energetic" selected>Energetic</option>
-                                <option value="Dramatic">Dramatic</option>
-                                <option value="Conversational">Conversational</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="video-duration">Duration: <span id="video-duration-val" class="range-val">3
-                                    min</span></label>
-                            <input type="range" id="video-duration" min="1" max="15" step="1" value="3">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="video-submit">
-                            <span class="btn-text">Generate Script</span>
-                            <span class="btn-icon">→</span>
-                        </button>
-                    </form>
+                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Video Scripts</h2>
+                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Generate precise video hook & script outlines for social media platforms.</p>
                 </div>
-
-                <div class="card result-card" id="video-result-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Generated Script</h2>
-                        <div class="result-actions">
-                            <button class="btn-icon-sm" id="video-copy" title="Copy to clipboard"><svg width="16"
-                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                </svg></button>
-                            <button class="btn-icon-sm" id="video-download" title="Download as text"><svg width="16"
-                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="7 10 12 15 17 10" />
-                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg></button>
+                <div class="workspace-shell">
+                    <div class="workspace-header">
+                        <div class="workspace-tabs">
+                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
+                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
+                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Video Scripts</span>
+                        </div>
+                        <div class="ws-status">
+                            <div class="ws-status-dot"></div>
+                            Ready
                         </div>
                     </div>
-                    <div class="result-content" id="video-result">
-                        <div class="empty-state">
-                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <polygon points="23 7 16 12 23 17 23 7" />
-                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                                </svg></span>
-                            <p>Your generated script will appear here</p>
+                    <div class="workspace-body">
+                        <!-- Left Form -->
+                        <div class="ws-form-col">
+                            <form id="video-form" class="gen-form">
+                                <div class="form-group" style="padding-bottom: 8px;">
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="video-usage-stats"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="video-product">Product Name</label>
+                                    <input type="text" id="video-product" placeholder="e.g. iPhone 16 Pro" required maxlength="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="video-tone">Tone</label>
+                                    <select id="video-tone" required>
+                                        <option value="Professional">Professional</option>
+                                        <option value="Casual">Casual</option>
+                                        <option value="Energetic" selected>Energetic</option>
+                                        <option value="Dramatic">Dramatic</option>
+                                        <option value="Conversational">Conversational</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="video-duration">Duration: <span id="video-duration-val" class="range-val">3 min</span></label>
+                                    <input type="range" id="video-duration" min="1" max="15" step="1" value="3">
+                                </div>
+                                <button type="submit" class="btn btn-submit" id="video-submit">Generate</button>
+                            </form>
+                        </div>
+                        <!-- Right Output -->
+                        <div class="ws-output-col">
+                            <div class="result-header">
+                                <h2 class="result-title">Generated Script</h2>
+                                <div class="result-actions">
+                                    <button class="btn-icon-sm" id="video-copy" title="Copy to clipboard"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg></button>
+                                    <button class="btn-icon-sm" id="video-download" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg></button>
+                                </div>
+                            </div>
+                            <div class="ws-output-area">
+                                <div class="result-content-box" id="video-result"></div>
+                                <div class="output-placeholder" id="video-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                                    Your output will appear here
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -318,81 +415,89 @@
 
         <!-- ═══ Image Generator Tab ═══ -->
         <section id="panel-image" class="tab-panel">
-            <div class="generator-grid">
-                <div class="card form-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Image Generator</h2>
-                        <p class="card-desc">Generate stunning social media images with AI</p>
-                        <div class="usage-stats" id="image-usage-stats"></div>
+             <div class="workspace-wrapper" style="padding-top: 48px;">
+                <!-- Tool Hero -->
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <div class="fc-icon" style="margin: 0 auto 1rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                     </div>
-                    <form id="image-form" class="gen-form">
-                        <div class="form-group">
-                            <label for="image-product">Product Name</label>
-                            <input type="text" id="image-product" placeholder="e.g. Nike Air Max" required
-                                maxlength="100">
-                        </div>
-                        <div class="form-group">
-                            <label for="image-style">Visual Style</label>
-                            <select id="image-style" required>
-                                <option value="minimalist">Minimalist</option>
-                                <option value="vibrant" selected>Vibrant</option>
-                                <option value="corporate">Corporate</option>
-                                <option value="futuristic">Futuristic</option>
-                                <option value="retro">Retro</option>
-                                <option value="elegant">Elegant</option>
-                                <option value="playful">Playful</option>
-                                <option value="dark">Dark</option>
-                                <option value="neon">Neon</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="image-platform">Platform</label>
-                            <select id="image-platform" required>
-                                <option value="instagram" selected>Instagram (1080×1080)</option>
-                                <option value="linkedin">LinkedIn (1200×627)</option>
-                                <option value="twitter">Twitter / X (1200×675)</option>
-                                <option value="facebook">Facebook (1200×630)</option>
-                                <option value="youtube">YouTube (1280×720)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="image-count">Number of Images: <span id="image-count-val"
-                                    class="range-val">1</span></label>
-                            <input type="range" id="image-count" min="1" max="4" step="1" value="1">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="image-submit">
-                            <span class="btn-text">Generate Image</span>
-                            <span class="btn-icon">→</span>
-                        </button>
-                    </form>
+                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Image Synthesis</h2>
+                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Leverage FLUX to synthesize breathtaking modern assets to elevate your brand.</p>
                 </div>
-
-                <div class="card result-card" id="image-result-card">
-                    <div class="card-header">
-                        <h2 class="card-title">Generated Image</h2>
-                        <div class="result-actions">
-                            <button class="btn-icon-sm" id="image-download-btn" title="Download image"><svg width="16"
-                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="7 10 12 15 17 10" />
-                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg></button>
+                <div class="workspace-shell">
+                    <div class="workspace-header">
+                        <div class="workspace-tabs">
+                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
+                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
+                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Image Synthesis</span>
+                        </div>
+                        <div class="ws-status">
+                            <div class="ws-status-dot"></div>
+                            Ready
                         </div>
                     </div>
-                    <div class="result-content" id="image-result">
-                        <div class="empty-state">
-                            <span class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                    <polyline points="21 15 16 10 5 21" />
-                                </svg></span>
-                            <p>Your generated image will appear here</p>
+                    <div class="workspace-body">
+                        <!-- Left Form -->
+                        <div class="ws-form-col">
+                            <form id="image-form" class="gen-form">
+                                <div class="form-group" style="padding-bottom: 8px;">
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="image-usage-stats"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image-product">Product Name</label>
+                                    <input type="text" id="image-product" placeholder="e.g. Nike Air Max" required maxlength="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="image-style">Visual Style</label>
+                                    <select id="image-style" required>
+                                        <option value="minimalist">Minimalist</option>
+                                        <option value="vibrant" selected>Vibrant</option>
+                                        <option value="corporate">Corporate</option>
+                                        <option value="futuristic">Futuristic</option>
+                                        <option value="retro">Retro</option>
+                                        <option value="elegant">Elegant</option>
+                                        <option value="playful">Playful</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="neon">Neon</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image-platform">Platform</label>
+                                    <select id="image-platform" required>
+                                        <option value="instagram" selected>Instagram (1080×1080)</option>
+                                        <option value="linkedin">LinkedIn (1200×627)</option>
+                                        <option value="twitter">Twitter / X (1200×675)</option>
+                                        <option value="facebook">Facebook (1200×630)</option>
+                                        <option value="youtube">YouTube (1280×720)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image-count">Number of Images: <span id="image-count-val" class="range-val">1</span></label>
+                                    <input type="range" id="image-count" min="1" max="4" step="1" value="1">
+                                </div>
+                                <button type="submit" class="btn btn-submit" id="image-submit">Generate</button>
+                            </form>
                         </div>
-                    </div>
-                    <div class="image-prompt-box hidden" id="image-prompt-box">
-                        <p class="prompt-label">AI Prompt Used:</p>
-                        <p class="prompt-text" id="image-prompt-text"></p>
+                        <!-- Right Output -->
+                        <div class="ws-output-col">
+                            <div class="result-header">
+                                <h2 class="result-title">Generated Image</h2>
+                                <div class="result-actions">
+                                    <button class="btn-icon-sm" id="image-download-btn" title="Download image"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg></button>
+                                </div>
+                            </div>
+                            <div class="ws-output-area">
+                                <div class="result-content-box" id="image-result" style="padding: 0;"></div>
+                                <div class="output-placeholder" id="image-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                    Your generated image will appear here
+                                </div>
+                            </div>
+                            <div class="image-prompt-box hidden" id="image-prompt-box">
+                                <span class="prompt-label">AI Prompt Used:</span>
+                                <span class="prompt-text" id="image-prompt-text"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -400,12 +505,59 @@
 
     </main>
 
-    <!-- ─── Footer ───────────────────────────────────────────────────── -->
+    <!-- ─── Footer ─── -->
     <footer class="footer">
-        <p><span class="gradient-text">Prism AI</span> · Groq + Hugging Face + FLUX</p>
+        <div class="footer-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polygon points="12 2 19 21 12 17 5 21 12 2"></polygon></svg>
+            <strong>Prism AI</strong> © 2026
+        </div>
+        <div class="footer-badges">
+            <span class="footer-badge">Groq</span>
+            <span class="footer-badge">Hugging Face</span>
+            <span class="footer-badge">FLUX</span>
+        </div>
     </footer>
 
     <script src="/static/app.js"></script>
+    <script>
+        // Custom DOM mutators specifically for the new UI to hide placeholders when content updates
+        // Since we cannot edit app.js, we add minor observers here to polish the UI.
+        
+        // Hide/Show Placeholder logic
+        ['blog', 'video', 'image'].forEach(type => {
+            const res = document.getElementById(type + '-result');
+            const ph = document.getElementById(type + '-placeholder');
+            if(res && ph) {
+                const observer = new MutationObserver(() => {
+                    if(res.innerHTML.trim() !== "") {
+                        ph.style.display = "none";
+                        res.style.display = "block";
+                    } else {
+                        ph.style.display = "flex";
+                        res.style.display = "none";
+                    }
+                });
+                observer.observe(res, { childList: true, subtree: true, characterData: true });
+            }
+        });
+
+        // Keep active feature card synced
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabId = btn.getAttribute('data-tab');
+                if(!tabId || ['login','register','landing'].includes(tabId)) return;
+                
+                // Clear active from all fc-card-sync
+                document.querySelectorAll('.fc-card-sync').forEach(fc => {
+                    fc.classList.remove('active');
+                    if(fc.getAttribute('data-tab') === tabId) {
+                        fc.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+    </script>
 </body>
 
 </html>
