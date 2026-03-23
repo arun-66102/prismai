@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Prism AI</title>
-    <!-- Fonts included directly in styles.css via Sand & Signal system -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="/static/theme.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="/static/admin.css">
@@ -13,15 +14,19 @@
 </head>
 
 <body>
+    <!-- ─── Custom Cursor ─── -->
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
     <!-- ─── Navbar ─── -->
     <nav class="navbar">
         <div class="navbar-brand">
-            <div class="brand-icon">
+            <div class="brand-icon" style="background: var(--amber); box-shadow: 0 0 16px var(--amber-glow);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+                    <polygon points="12 2 22 22 2 22"></polygon>
                 </svg>
             </div>
-            <span class="brand-text">Prism <span class="brand-highlight">AI</span><span class="admin-badge">Admin</span></span>
+            <span class="brand-text">Prism <span class="brand-highlight">AI</span> <span class="admin-badge">Admin</span></span>
         </div>
         
         <div class="navbar-right">
@@ -193,6 +198,43 @@
 
     <script src="/static/app.js"></script>
     <script src="/static/admin.js"></script>
+    <script>
+        // ─── Custom Cursor ───
+        (function() {
+            const cursor = document.getElementById('cursor');
+            const ring = document.getElementById('cursor-ring');
+            let mx = 0, my = 0, rx = 0, ry = 0;
+
+            document.addEventListener('mousemove', e => {
+                mx = e.clientX;
+                my = e.clientY;
+                cursor.style.left = mx + 'px';
+                cursor.style.top = my + 'px';
+            });
+
+            // Hover states (added .btn-small for admin)
+            document.addEventListener('mouseover', e => {
+                if (e.target.closest('button, a, input, select, .feature-card, .btn, .tab-btn, .ws-tab, .dropdown-item, .text-btn, .nav-login, .nav-get-started, .theme-toggle, .btn-icon-sm, .btn-small')) {
+                    cursor.classList.add('hover');
+                }
+            });
+            document.addEventListener('mouseout', e => {
+                if (e.target.closest('button, a, input, select, .feature-card, .btn, .tab-btn, .ws-tab, .dropdown-item, .text-btn, .nav-login, .nav-get-started, .theme-toggle, .btn-icon-sm, .btn-small')) {
+                    cursor.classList.remove('hover');
+                }
+            });
+
+            // Ring lerp
+            function lerpRing() {
+                rx += (mx - rx) * 0.12;
+                ry += (my - ry) * 0.12;
+                ring.style.left = rx + 'px';
+                ring.style.top = ry + 'px';
+                requestAnimationFrame(lerpRing);
+            }
+            lerpRing();
+        })();
+    </script>
 </body>
 
 </html>
