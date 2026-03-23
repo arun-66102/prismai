@@ -147,15 +147,15 @@ function switchTab(tabId, updateHistory = true) {
 }
 
 // ─── Range Sliders ──────────────────────────────────────────────────────
-$("#blog-words").addEventListener("input", (e) => {
+$("#blog-words")?.addEventListener("input", (e) => {
     $("#blog-words-val").textContent = e.target.value;
 });
 
-$("#video-duration").addEventListener("input", (e) => {
+$("#video-duration")?.addEventListener("input", (e) => {
     $("#video-duration-val").textContent = `${e.target.value} min`;
 });
 
-$("#image-count").addEventListener("input", (e) => {
+$("#image-count")?.addEventListener("input", (e) => {
     $("#image-count-val").textContent = e.target.value;
 });
 
@@ -304,9 +304,9 @@ function updateUsageStatsUI() {
     const dashStats = $("#dashboard-stats");
     if (dashStats) {
         dashStats.style.display = "flex";
-        $("#dash-stat-blogs").textContent = currentUsage.blogs_generated || 0;
-        $("#dash-stat-videos").textContent = currentUsage.video_scripts_generated || 0;
-        $("#dash-stat-images").textContent = currentUsage.images_generated || 0;
+        $("#dash-stat-blogs").textContent = currentUsage.blogs_total || 0;
+        $("#dash-stat-videos").textContent = currentUsage.video_scripts_total || 0;
+        $("#dash-stat-images").textContent = currentUsage.images_total || 0;
     }
 
     const blogStats = $("#blog-usage-stats");
@@ -437,7 +437,7 @@ fetchProfile().finally(() => {
 // ─── Blog Generation ────────────────────────────────────────────────────
 let lastBlogContent = "";
 
-$("#blog-form").addEventListener("submit", async (e) => {
+$("#blog-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const product_name = $("#blog-product").value.trim();
@@ -467,12 +467,12 @@ $("#blog-form").addEventListener("submit", async (e) => {
 });
 
 // Copy & Download blog
-$("#blog-copy").addEventListener("click", () => {
+$("#blog-copy")?.addEventListener("click", () => {
     if (lastBlogContent) copyText(lastBlogContent);
     else toast("Generate a blog first.", "info");
 });
 
-$("#blog-download").addEventListener("click", () => {
+$("#blog-download")?.addEventListener("click", () => {
     if (lastBlogContent) downloadText(lastBlogContent, "prism-blog.txt");
     else toast("Generate a blog first.", "info");
 });
@@ -480,7 +480,7 @@ $("#blog-download").addEventListener("click", () => {
 // ─── Video Script Generation ────────────────────────────────────────────
 let lastVideoContent = "";
 
-$("#video-form").addEventListener("submit", async (e) => {
+$("#video-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const product_name = $("#video-product").value.trim();
@@ -509,12 +509,12 @@ $("#video-form").addEventListener("submit", async (e) => {
 });
 
 // Copy & Download video script
-$("#video-copy").addEventListener("click", () => {
+$("#video-copy")?.addEventListener("click", () => {
     if (lastVideoContent) copyText(lastVideoContent);
     else toast("Generate a script first.", "info");
 });
 
-$("#video-download").addEventListener("click", () => {
+$("#video-download")?.addEventListener("click", () => {
     if (lastVideoContent) downloadText(lastVideoContent, "prism-video-script.txt");
     else toast("Generate a script first.", "info");
 });
@@ -522,7 +522,7 @@ $("#video-download").addEventListener("click", () => {
 // ─── Image Generation ───────────────────────────────────────────────────
 let lastImageUrls = [];
 
-$("#image-form").addEventListener("submit", async (e) => {
+$("#image-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const product_name = $("#image-product").value.trim();
@@ -576,7 +576,7 @@ $("#image-form").addEventListener("submit", async (e) => {
 });
 
 // Download image(s)
-$("#image-download-btn").addEventListener("click", () => {
+$("#image-download-btn")?.addEventListener("click", () => {
     if (lastImageUrls.length === 0) {
         toast("Generate an image first.", "info");
         return;

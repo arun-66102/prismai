@@ -25,10 +25,13 @@ class UserResponse(BaseModel):
 
 class UsageStats(BaseModel):
     blogs_generated: int
+    blogs_total: int
     blogs_limit: int | float | str
     video_scripts_generated: int
+    video_scripts_total: int
     video_scripts_limit: int | float | str
     images_generated: int
+    images_total: int
     images_limit: int | float | str
     watermark: bool
 

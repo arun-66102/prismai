@@ -180,15 +180,21 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     limits = RATE_LIMITS.get(tier, RATE_LIMITS["free"])
     
     blogs_used = await database.get_today_usage(user_id, "generate-blog")
+    blogs_total = await database.get_total_usage(user_id, "generate-blog")
     video_used = await database.get_today_usage(user_id, "generate-video-script")
+    video_total = await database.get_total_usage(user_id, "generate-video-script")
     image_used = await database.get_today_usage(user_id, "generate-image")
+    image_total = await database.get_total_usage(user_id, "generate-image")
     
     usage = UsageStats(
         blogs_generated=blogs_used,
+        blogs_total=blogs_total,
         blogs_limit=limits.get("generate-blog", 0),
         video_scripts_generated=video_used,
+        video_scripts_total=video_total,
         video_scripts_limit=limits.get("generate-video-script", 0),
         images_generated=image_used,
+        images_total=image_total,
         images_limit=limits.get("generate-image", 0),
         watermark=limits.get("watermark", True)
     )

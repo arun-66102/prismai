@@ -99,6 +99,20 @@ async def get_today_usage(user_id: str, endpoint: str) -> int:
         ''', user_id, endpoint)
         return count if count else 0
 
+async def get_total_usage(user_id: str, endpoint: str) -> int:
+    p = await get_pool()
+    if not p:
+        logger.error("Database pool is unavailable. Defaulting to 0 usage.")
+        return 0
+    async with p.acquire() as conn:
+        count = await conn.fetchval('''
+            SELECT COUNT(*) 
+            FROM usage_logs 
+            WHERE user_id = $1 
+              AND endpoint = $2
+        ''', user_id, endpoint)
+        return count if count else 0
+
 async def get_user_count() -> int:
     p = await get_pool()
     if not p:
