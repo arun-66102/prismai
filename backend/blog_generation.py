@@ -59,7 +59,16 @@ Conclusion:
 <Strong summary>
 
 Call To Action:
-<Encourage reader action clearly>"""
+<Encourage reader action clearly>
+
+Article Summary:
+<Provide a concise bullet-point summary covering:
+- The core topic and purpose of the article
+- Key product features highlighted
+- Main benefits discussed
+- Primary use cases mentioned
+- The central message of the conclusion
+- The call to action takeaway>"""
 
     logger.info("Generating blog for '%s' (tone=%s, ~%d words)", product_name, tone, word_count)
 
