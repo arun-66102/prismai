@@ -285,6 +285,8 @@ function updateAuthUI() {
 
         // Clear usage stats
         $$(".usage-stats").forEach(el => el.innerHTML = "");
+        const dashStats = $("#dashboard-stats");
+        if (dashStats) dashStats.style.display = "none";
 
         // Read hash to see if they specifically wanted login/register, otherwise landing
         const hashTab = window.location.hash.substring(1);
@@ -298,6 +300,14 @@ function updateAuthUI() {
 
 function updateUsageStatsUI() {
     if (!currentUsage) return;
+
+    const dashStats = $("#dashboard-stats");
+    if (dashStats) {
+        dashStats.style.display = "flex";
+        $("#dash-stat-blogs").textContent = currentUsage.blogs_generated || 0;
+        $("#dash-stat-videos").textContent = currentUsage.video_scripts_generated || 0;
+        $("#dash-stat-images").textContent = currentUsage.images_generated || 0;
+    }
 
     const blogStats = $("#blog-usage-stats");
     if (blogStats) {
