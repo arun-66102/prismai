@@ -1,18 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Prism AI — AI-powered Blog, Video Script & Image Generation">
     <title>Prism AI — Content Generation Suite</title>
-    <!-- Fonts included directly in styles.css -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="/static/theme.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="icon" sizes="192x192" type="image/png" href="/static/logo.png">
 </head>
 
 <body>
+
+    <!-- ─── Custom Cursor ─── -->
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- ─── 3D Prism Canvas ─── -->
+    <canvas id="hero-canvas"></canvas>
+
+    <!-- ─── Ambient Background Lines ─── -->
+    <div id="ambient-lines"></div>
 
     <!-- ─── Loading Overlay ─── -->
     <div id="loading-overlay" class="loading-overlay hidden">
@@ -30,21 +41,19 @@
         <div class="navbar-brand">
             <div class="brand-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+                    <polygon points="12 2 22 22 2 22"></polygon>
                 </svg>
             </div>
             <span class="brand-text">Prism <span class="brand-highlight">AI</span></span>
         </div>
         
-        <!-- We keep navbar-tabs hidden logic in CSS for small screens, but they exist for DOM hooks if needed -->
         <div class="navbar-tabs tab-panel" id="panel-hero-hide">
-            <!-- Hidden intentionally from Sand&Signal prompt (not requested in center nav), but let's just make it empty since JS only needs tab-btns elsewhere -->
         </div>
 
         <div class="navbar-right">
             <!-- Theme Toggle -->
             <button class="theme-toggle" id="custom-theme-toggle" onclick="
-                const current = document.documentElement.getAttribute('data-theme') || 'light';
+                const current = document.documentElement.getAttribute('data-theme') || 'dark';
                 const next = current === 'dark' ? 'light' : 'dark';
                 window.setPrismTheme(next);
                 document.getElementById('icon-sun').style.display = next === 'dark' ? 'block' : 'none';
@@ -78,16 +87,16 @@
         <div id="hero-section" style="display: none;"></div>
 
         <!-- ═══ Landing & Hero wrapper ═══ -->
-        <!-- JS toggles #panel-landing for non-logged in users. We will merge hero and landing. -->
         <section id="panel-landing" class="tab-panel active">
             
             <!-- Hero Section -->
             <div class="hero-wrapper">
                 <div class="hero-badge">
                     <div class="dot"></div>
-                    AI Content Suite
+                    AI CONTENT SUITE
                 </div>
-                <h1 class="hero-title">The content engine that <em>performs.</em></h1>
+                <h1 class="hero-title">THE CONTENT ENGINE<br>THAT <em>PERFORMS.</em></h1>
+                <h2 class="hero-subtitle-line">POWERED BY AI</h2>
                 <p class="hero-subtitle">The ultimate creative suite. Generate SEO blogs, engaging video scripts, and stunning social media images in seconds.</p>
                 <div class="hero-ctas">
                     <button class="btn btn-primary" id="landing-register-btn">
@@ -112,16 +121,23 @@
                         <span class="stat-label">Platforms</span>
                     </div>
                 </div>
+
+                <!-- Scroll Hint -->
+                <div class="scroll-hint">
+                    <span class="scroll-hint-text">Scroll</span>
+                    <div class="scroll-hint-line"></div>
+                </div>
             </div>
 
             <!-- How It Works static section for landing -->
-            <div class="how-it-works">
+            <div class="how-it-works reveal">
                 <div class="hiw-container">
                     <div class="hiw-header">
-                        <h2 class="hiw-title serif">Built for speed and precision</h2>
+                        <div class="section-eyebrow">How It Works</div>
+                        <h2 class="hiw-title">BUILT FOR SPEED AND PRECISION</h2>
                         <p class="hiw-subtitle">Generate high-quality content in three simple steps.</p>
                     </div>
-                    <div class="hiw-grid">
+                    <div class="hiw-grid reveal">
                         <div class="hiw-step">
                             <div class="hiw-num">01</div>
                             <h3 class="hiw-step-title">Select Tool</h3>
@@ -148,8 +164,8 @@
         <section id="panel-login" class="tab-panel auth-panel">
             <div class="auth-card">
                 <div class="result-header" style="flex-direction: column; align-items: flex-start;">
-                    <h2 class="result-title serif" style="font-size: 32px">Welcome Back</h2>
-                    <p style="color: var(--text-2); font-size: 14px; margin-top: 4px;">Login to generate content</p>
+                    <h2 class="result-title" style="font-family: var(--font-display); font-size: 36px; letter-spacing: .04em;">WELCOME BACK</h2>
+                    <p style="color: var(--text2); font-size: 14px; margin-top: 4px;">Login to generate content</p>
                 </div>
                 <form id="login-form" class="gen-form">
                     <div class="form-group">
@@ -173,8 +189,8 @@
         <section id="panel-register" class="tab-panel auth-panel">
             <div class="auth-card">
                 <div class="result-header" style="flex-direction: column; align-items: flex-start;">
-                    <h2 class="result-title serif" style="font-size: 32px">Create Account</h2>
-                    <p style="color: var(--text-2); font-size: 14px; margin-top: 4px;">Start generating content today</p>
+                    <h2 class="result-title" style="font-family: var(--font-display); font-size: 36px; letter-spacing: .04em;">CREATE ACCOUNT</h2>
+                    <p style="color: var(--text2); font-size: 14px; margin-top: 4px;">Start generating content today</p>
                 </div>
                 <form id="register-form" class="gen-form">
                     <div class="form-group">
@@ -199,20 +215,18 @@
             </div>
         </section>
 
-        <!-- ═══ Shared App Core ═══ -->
-        <!-- We will use a shared shell for the layout, but JS expects #panel-blog, #panel-video to hold their forms! -->
-
         <!-- ═══ Intro Dashboard Panel ═══ -->
         <section id="panel-intro" class="tab-panel">
             <div class="workspace-wrapper" style="display: flex; align-items: center; justify-content: center; min-height: 70vh; flex-direction: column;">
                 <div style="text-align: center; margin-bottom: 3rem; margin-top: 2rem;">
-                    <h2 id="intro-greeting" class="serif" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Select a Tool</h2>
-                    <p style="color: var(--text-2);">Choose what you'd like to generate today.</p>
+                    <h2 id="intro-greeting" style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.5rem;">SELECT A TOOL</h2>
+                    <p style="color: var(--text2);">Choose what you'd like to generate today.</p>
                 </div>
                 <!-- Feature Cards -->
                 <div class="feature-cards-grid" id="app-feature-cards">
             <div class="feature-card tab-btn fc-card-sync active" data-tab="blog">
                 <div class="bottom-bar"></div>
+                <div class="fc-num">01</div>
                 <div class="fc-top">
                     <div class="fc-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -229,6 +243,7 @@
             
             <div class="feature-card tab-btn fc-card-sync" data-tab="video">
                 <div class="bottom-bar"></div>
+                <div class="fc-num">02</div>
                 <div class="fc-top">
                     <div class="fc-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
@@ -245,6 +260,7 @@
 
             <div class="feature-card tab-btn fc-card-sync" data-tab="image">
                 <div class="bottom-bar"></div>
+                <div class="fc-num">03</div>
                 <div class="fc-top">
                     <div class="fc-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -263,26 +279,27 @@
         </section>
 
 
-        <!-- We use inline styles to show the workspace framework only when NOT in landing/auth -->
-        <!-- Since JS toggles "active" class on #panel-blog etc., we will inject the workspace structural shell inside each panel, to guarantee it maps perfectly without touching JS logic. -->
-
         <!-- ═══ Blog Generator Tab ═══ -->
         <section id="panel-blog" class="tab-panel">
-            <div class="workspace-wrapper" style="padding-top: 48px;">
+            <div class="workspace-wrapper" style="padding-top: 96px;">
                 <!-- Tool Hero -->
                 <div style="text-align: center; margin-bottom: 2.5rem;">
-                    <div class="fc-icon" style="margin: 0 auto 1rem;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    </div>
-                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Blog Generator</h2>
-                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Write fully optimized, engaging articles tailored to your audience instantly.</p>
+                    <div class="section-eyebrow">Blog</div>
+                    <h2 style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.75rem; line-height: 1;">BLOG GENERATOR</h2>
+                    <p style="color: var(--text2); font-size: 16px; max-width: 500px; margin: 0 auto;">Write fully optimized, engaging articles tailored to your audience instantly.</p>
                 </div>
-                <div class="workspace-shell">
+                <div class="workspace-shell reveal">
                     <div class="workspace-header">
-                        <div class="workspace-tabs">
-                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
-                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
-                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Blog Generator</span>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div class="traffic-dots">
+                                <div class="traffic-dot red"></div>
+                                <div class="traffic-dot yellow"></div>
+                                <div class="traffic-dot green"></div>
+                            </div>
+                            <div class="workspace-tabs">
+                                <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
+                                <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Blog Generator</span>
+                            </div>
                         </div>
                         <div class="ws-status">
                             <div class="ws-status-dot"></div>
@@ -294,7 +311,7 @@
                         <div class="ws-form-col">
                             <form id="blog-form" class="gen-form">
                                 <div class="form-group" style="padding-bottom: 8px;">
-                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="blog-usage-stats"></div>
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--amber); margin-bottom: 4px;" id="blog-usage-stats"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="blog-product">Product Name</label>
@@ -315,7 +332,10 @@
                                     <label for="blog-words">Word Count: <span id="blog-words-val" class="range-val">500</span></label>
                                     <input type="range" id="blog-words" min="100" max="3000" step="100" value="500">
                                 </div>
-                                <button type="submit" class="btn btn-submit" id="blog-submit">Generate</button>
+                                <button type="submit" class="btn btn-submit" id="blog-submit">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    Generate
+                                </button>
                             </form>
                         </div>
                         <!-- Right Output -->
@@ -331,7 +351,8 @@
                                 <div class="result-content-box" id="blog-result"></div>
                                 <div class="output-placeholder" id="blog-placeholder">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                                    Your output will appear here
+                                    Output appears here
+                                    <span class="placeholder-sub">Fill the form and hit Generate</span>
                                 </div>
                             </div>
                         </div>
@@ -342,21 +363,25 @@
 
         <!-- ═══ Video Script Tab ═══ -->
         <section id="panel-video" class="tab-panel">
-            <div class="workspace-wrapper" style="padding-top: 48px;">
+            <div class="workspace-wrapper" style="padding-top: 96px;">
                 <!-- Tool Hero -->
                 <div style="text-align: center; margin-bottom: 2.5rem;">
-                    <div class="fc-icon" style="margin: 0 auto 1rem;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                    </div>
-                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Video Scripts</h2>
-                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Generate precise video hook & script outlines for social media platforms.</p>
+                    <div class="section-eyebrow">Video</div>
+                    <h2 style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.75rem; line-height: 1;">VIDEO SCRIPTS</h2>
+                    <p style="color: var(--text2); font-size: 16px; max-width: 500px; margin: 0 auto;">Generate precise video hook & script outlines for social media platforms.</p>
                 </div>
-                <div class="workspace-shell">
+                <div class="workspace-shell reveal">
                     <div class="workspace-header">
-                        <div class="workspace-tabs">
-                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
-                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
-                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Video Scripts</span>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div class="traffic-dots">
+                                <div class="traffic-dot red"></div>
+                                <div class="traffic-dot yellow"></div>
+                                <div class="traffic-dot green"></div>
+                            </div>
+                            <div class="workspace-tabs">
+                                <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
+                                <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Video Scripts</span>
+                            </div>
                         </div>
                         <div class="ws-status">
                             <div class="ws-status-dot"></div>
@@ -368,7 +393,7 @@
                         <div class="ws-form-col">
                             <form id="video-form" class="gen-form">
                                 <div class="form-group" style="padding-bottom: 8px;">
-                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="video-usage-stats"></div>
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--amber); margin-bottom: 4px;" id="video-usage-stats"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="video-product">Product Name</label>
@@ -388,7 +413,10 @@
                                     <label for="video-duration">Duration: <span id="video-duration-val" class="range-val">3 min</span></label>
                                     <input type="range" id="video-duration" min="1" max="15" step="1" value="3">
                                 </div>
-                                <button type="submit" class="btn btn-submit" id="video-submit">Generate</button>
+                                <button type="submit" class="btn btn-submit" id="video-submit">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    Generate
+                                </button>
                             </form>
                         </div>
                         <!-- Right Output -->
@@ -404,7 +432,8 @@
                                 <div class="result-content-box" id="video-result"></div>
                                 <div class="output-placeholder" id="video-placeholder">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                                    Your output will appear here
+                                    Output appears here
+                                    <span class="placeholder-sub">Fill the form and hit Generate</span>
                                 </div>
                             </div>
                         </div>
@@ -415,21 +444,25 @@
 
         <!-- ═══ Image Generator Tab ═══ -->
         <section id="panel-image" class="tab-panel">
-             <div class="workspace-wrapper" style="padding-top: 48px;">
+             <div class="workspace-wrapper" style="padding-top: 96px;">
                 <!-- Tool Hero -->
                 <div style="text-align: center; margin-bottom: 2.5rem;">
-                    <div class="fc-icon" style="margin: 0 auto 1rem;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    </div>
-                    <h2 class="serif" style="font-size: 3rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1;">Image Synthesis</h2>
-                    <p style="color: var(--text-2); font-size: 17px; max-width: 500px; margin: 0 auto;">Leverage FLUX to synthesize breathtaking modern assets to elevate your brand.</p>
+                    <div class="section-eyebrow">Image</div>
+                    <h2 style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.75rem; line-height: 1;">IMAGE SYNTHESIS</h2>
+                    <p style="color: var(--text2); font-size: 16px; max-width: 500px; margin: 0 auto;">Leverage FLUX to synthesize breathtaking modern assets to elevate your brand.</p>
                 </div>
-                <div class="workspace-shell">
+                <div class="workspace-shell reveal">
                     <div class="workspace-header">
-                        <div class="workspace-tabs">
-                            <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text-2);">← Dashboard</button>
-                            <div style="width: 1px; height: 16px; background: var(--border); margin: auto 4px;"></div>
-                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Image Synthesis</span>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div class="traffic-dots">
+                                <div class="traffic-dot red"></div>
+                                <div class="traffic-dot yellow"></div>
+                                <div class="traffic-dot green"></div>
+                            </div>
+                            <div class="workspace-tabs">
+                                <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
+                                <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Image Synthesis</span>
+                            </div>
                         </div>
                         <div class="ws-status">
                             <div class="ws-status-dot"></div>
@@ -441,7 +474,7 @@
                         <div class="ws-form-col">
                             <form id="image-form" class="gen-form">
                                 <div class="form-group" style="padding-bottom: 8px;">
-                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;" id="image-usage-stats"></div>
+                                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--amber); margin-bottom: 4px;" id="image-usage-stats"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="image-product">Product Name</label>
@@ -475,7 +508,10 @@
                                     <label for="image-count">Number of Images: <span id="image-count-val" class="range-val">1</span></label>
                                     <input type="range" id="image-count" min="1" max="4" step="1" value="1">
                                 </div>
-                                <button type="submit" class="btn btn-submit" id="image-submit">Generate</button>
+                                <button type="submit" class="btn btn-submit" id="image-submit">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    Generate
+                                </button>
                             </form>
                         </div>
                         <!-- Right Output -->
@@ -490,7 +526,8 @@
                                 <div class="result-content-box" id="image-result" style="padding: 0;"></div>
                                 <div class="output-placeholder" id="image-placeholder">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                                    Your generated image will appear here
+                                    Output appears here
+                                    <span class="placeholder-sub">Fill the form and hit Generate</span>
                                 </div>
                             </div>
                             <div class="image-prompt-box hidden" id="image-prompt-box">
@@ -508,8 +545,8 @@
     <!-- ─── Footer ─── -->
     <footer class="footer">
         <div class="footer-left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polygon points="12 2 19 21 12 17 5 21 12 2"></polygon></svg>
-            <strong>Prism AI</strong> © 2026
+            <strong>PRISM AI</strong>
+            <span>© 2026</span>
         </div>
         <div class="footer-badges">
             <span class="footer-badge">Groq</span>
@@ -520,10 +557,227 @@
 
     <script src="/static/app.js"></script>
     <script>
-        // Custom DOM mutators specifically for the new UI to hide placeholders when content updates
-        // Since we cannot edit app.js, we add minor observers here to polish the UI.
-        
-        // Hide/Show Placeholder logic
+        // ─── Custom Cursor ───
+        (function() {
+            const cursor = document.getElementById('cursor');
+            const ring = document.getElementById('cursor-ring');
+            let mx = 0, my = 0, rx = 0, ry = 0;
+
+            document.addEventListener('mousemove', e => {
+                mx = e.clientX;
+                my = e.clientY;
+                cursor.style.left = mx + 'px';
+                cursor.style.top = my + 'px';
+            });
+
+            // Hover states
+            document.addEventListener('mouseover', e => {
+                if (e.target.closest('button, a, input, select, .feature-card, .btn, .tab-btn, .ws-tab, .dropdown-item, .text-btn, .nav-login, .nav-get-started, .theme-toggle, .btn-icon-sm')) {
+                    cursor.classList.add('hover');
+                }
+            });
+            document.addEventListener('mouseout', e => {
+                if (e.target.closest('button, a, input, select, .feature-card, .btn, .tab-btn, .ws-tab, .dropdown-item, .text-btn, .nav-login, .nav-get-started, .theme-toggle, .btn-icon-sm')) {
+                    cursor.classList.remove('hover');
+                }
+            });
+
+            // Ring lerp
+            function lerpRing() {
+                rx += (mx - rx) * 0.12;
+                ry += (my - ry) * 0.12;
+                ring.style.left = rx + 'px';
+                ring.style.top = ry + 'px';
+                requestAnimationFrame(lerpRing);
+            }
+            lerpRing();
+        })();
+
+        // ─── 3D Prism Canvas ───
+        (function() {
+            const canvas = document.getElementById('hero-canvas');
+            const ctx = canvas.getContext('2d');
+            let mouseX = 0.5, mouseY = 0.5;
+            let angle = 0;
+            let t = 0;
+
+            document.addEventListener('mousemove', e => {
+                mouseX = e.clientX / window.innerWidth;
+                mouseY = e.clientY / window.innerHeight;
+            });
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const depth = 0.55;
+            const topV = [[0, -1.1], [0.866, 0.5 * 1.1], [-0.866, 0.5 * 1.1]];
+            const botV = [[0, -1.1], [0.866, 0.5 * 1.1], [-0.866, 0.5 * 1.1]];
+
+            function proj(x, y, z) {
+                const sz = Math.min(canvas.width, canvas.height) * 0.19;
+                const cx = canvas.width / 2 + (mouseX - 0.5) * 30;
+                const cy = canvas.height * 0.44 + (mouseY - 0.5) * 15;
+                const rx2 = x * Math.cos(angle) - z * Math.sin(angle);
+                const rz = x * Math.sin(angle) + z * Math.cos(angle);
+                return [cx + rx2 * sz, cy + y * sz + rz * sz * 0.28];
+            }
+
+            function drawFace(pts, fill, stroke, lw) {
+                ctx.beginPath();
+                ctx.moveTo(pts[0][0], pts[0][1]);
+                for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+                ctx.closePath();
+                if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+                if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 0.6; ctx.stroke(); }
+            }
+
+            function render() {
+                t++;
+                angle += 0.009;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const sz = Math.min(canvas.width, canvas.height) * 0.19;
+                const cx = canvas.width / 2 + (mouseX - 0.5) * 30;
+                const cy = canvas.height * 0.44 + (mouseY - 0.5) * 15;
+
+                // Project vertices
+                const T = topV.map(v => proj(v[0], v[1], -depth));
+                const B = botV.map(v => proj(v[0], v[1], depth));
+
+                // Background vignette
+                const vigGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height) * 0.7);
+                vigGrad.addColorStop(0, 'rgba(15,10,25,0)');
+                vigGrad.addColorStop(1, 'rgba(0,0,0,.7)');
+                ctx.fillStyle = vigGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Side faces
+                const sides = [[0,1],[1,2],[2,0]];
+                sides.forEach((s, fi) => {
+                    const a = s[0], b = s[1];
+                    const pts = [T[a], T[b], B[b], B[a]];
+                    const brightness = 0.15 + 0.55 * Math.max(0, Math.cos(angle + fi * 2.094 + 0.5));
+
+                    let fill;
+                    if (fi === 1) {
+                        const grad = ctx.createLinearGradient(pts[0][0], pts[0][1], pts[2][0], pts[2][1]);
+                        grad.addColorStop(0, `rgba(215,180,255,${brightness * 0.9 + 0.1})`);
+                        grad.addColorStop(0.5, `rgba(157,114,255,${brightness * 0.6 + 0.05})`);
+                        grad.addColorStop(1, `rgba(100,60,200,${brightness * 0.4})`);
+                        fill = grad;
+                    } else {
+                        const bv = Math.round(brightness * 80);
+                        fill = `rgb(${bv + 5},${bv + 2},${bv + 15})`;
+                    }
+
+                    drawFace(pts, fill, `rgba(157,114,255,${brightness * 0.5})`, 0.6);
+                });
+
+                // Top face
+                const topGrad = ctx.createLinearGradient(T[0][0], T[0][1], T[2][0], T[2][1]);
+                topGrad.addColorStop(0, 'rgba(230,210,255,.95)');
+                topGrad.addColorStop(0.3, 'rgba(255,250,255,.7)');
+                topGrad.addColorStop(1, 'rgba(160,120,220,.8)');
+                drawFace(T, topGrad, 'rgba(210,180,255,.6)', 0.8);
+
+                // Specular on top face
+                const avgX = (T[0][0] + T[1][0] + T[2][0]) / 3;
+                const avgY = (T[0][1] + T[1][1] + T[2][1]) / 3;
+                const specGrad = ctx.createRadialGradient(avgX - sz * 0.1, avgY - sz * 0.1, sz * 0.05, avgX - sz * 0.1, avgY - sz * 0.1, sz * 0.35);
+                specGrad.addColorStop(0, 'rgba(255,255,255,.55)');
+                specGrad.addColorStop(1, 'transparent');
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(T[0][0], T[0][1]);
+                ctx.lineTo(T[1][0], T[1][1]);
+                ctx.lineTo(T[2][0], T[2][1]);
+                ctx.closePath();
+                ctx.clip();
+                ctx.fillStyle = specGrad;
+                ctx.fillRect(avgX - sz, avgY - sz, sz * 2, sz * 2);
+                ctx.restore();
+
+                // Bottom face
+                drawFace(B, 'rgba(20,15,40,.85)', null);
+
+                // Ground glow
+                const groundGrad = ctx.createRadialGradient(cx, cy + sz * 1.05, 0, cx, cy + sz * 1.05, sz * 1.4);
+                groundGrad.addColorStop(0, 'rgba(157,114,255,.12)');
+                groundGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(cx - sz * 2, cy, sz * 4, sz * 3);
+
+                // Faint reflection
+                ctx.save();
+                ctx.globalAlpha = 0.18;
+                ctx.scale(1, -0.18);
+                const reflY = -(cy + sz * 1.5) / 0.18;
+                ctx.translate(0, reflY);
+                // Draw a simplified prism reflection
+                const rSz = 0.6;
+                sides.forEach((s, fi) => {
+                    const a = s[0], b = s[1];
+                    const pts = [
+                        [T[a][0], T[a][1]],
+                        [T[b][0], T[b][1]],
+                        [B[b][0], B[b][1]],
+                        [B[a][0], B[a][1]]
+                    ];
+                    const brightness = 0.15 + 0.55 * Math.max(0, Math.cos(angle + fi * 2.094 + 0.5));
+                    const bv = Math.round(brightness * 50);
+                    drawFace(pts, `rgb(${bv + 5},${bv},${Math.max(0, bv - 3)})`, null);
+                });
+                ctx.restore();
+
+                // Floating particles
+                for (let i = 0; i < 24; i++) {
+                    const px = cx + Math.cos(t * 0.004 + i * 0.45) * sz * (1.2 + i * 0.12);
+                    const py = cy + Math.sin(t * 0.003 + i * 0.67) * sz * (0.7 + i * 0.08);
+                    const opacity = 0.08 + 0.15 * Math.abs(Math.sin(t * 0.007 + i));
+                    const radius = i % 4 === 0 ? 2 : 1;
+                    ctx.beginPath();
+                    ctx.arc(px, py, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(157,114,255,${opacity})`;
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(render);
+            }
+            render();
+        })();
+
+        // ─── Ambient Lines ───
+        (function() {
+            const container = document.getElementById('ambient-lines');
+            const positions = [15, 35, 55, 75, 85];
+            const delays = [0, 0.8, 1.6, 2.4, 3.2];
+            positions.forEach((pos, i) => {
+                const line = document.createElement('div');
+                line.className = 'ambient-line';
+                line.style.left = pos + '%';
+                line.style.animationDelay = delays[i] + 's';
+                container.appendChild(line);
+            });
+        })();
+
+        // ─── Scroll Reveal ───
+        (function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        })();
+
+        // ─── Placeholder / Result Observers ───
         ['blog', 'video', 'image'].forEach(type => {
             const res = document.getElementById(type + '-result');
             const ph = document.getElementById(type + '-placeholder');
@@ -541,13 +795,12 @@
             }
         });
 
-        // Keep active feature card synced
+        // ─── Feature Card Sync ───
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const tabId = btn.getAttribute('data-tab');
                 if(!tabId || ['login','register','landing'].includes(tabId)) return;
                 
-                // Clear active from all fc-card-sync
                 document.querySelectorAll('.fc-card-sync').forEach(fc => {
                     fc.classList.remove('active');
                     if(fc.getAttribute('data-tab') === tabId) {
