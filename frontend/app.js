@@ -60,6 +60,21 @@ async function copyText(text) {
     }
 }
 
+async function shareContent(data) {
+    if (navigator.share) {
+        try {
+            await navigator.share(data);
+            toast("Shared successfully!", "success");
+        } catch (err) {
+            if (err.name !== "AbortError") {
+                toast("Could not share.", "error");
+            }
+        }
+    } else {
+        toast("Web Share fallback: please copy the text.", "info");
+    }
+}
+
 // ─── Theme Initialization ───────────────────────────────────────────────
 function updateThemeUI(theme) {
     document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -477,6 +492,17 @@ $("#blog-download")?.addEventListener("click", () => {
     else toast("Generate a blog first.", "info");
 });
 
+$("#blog-share")?.addEventListener("click", () => {
+    if (lastBlogContent) {
+        shareContent({
+            title: "Prism AI - Generated Blog",
+            text: lastBlogContent
+        });
+    } else {
+        toast("Generate a blog first.", "info");
+    }
+});
+
 // ─── Video Script Generation ────────────────────────────────────────────
 let lastVideoContent = "";
 
@@ -517,6 +543,17 @@ $("#video-copy")?.addEventListener("click", () => {
 $("#video-download")?.addEventListener("click", () => {
     if (lastVideoContent) downloadText(lastVideoContent, "prism-video-script.txt");
     else toast("Generate a script first.", "info");
+});
+
+$("#video-share")?.addEventListener("click", () => {
+    if (lastVideoContent) {
+        shareContent({
+            title: "Prism AI - Generated Script",
+            text: lastVideoContent
+        });
+    } else {
+        toast("Generate a script first.", "info");
+    }
 });
 
 // ─── Image Generation ───────────────────────────────────────────────────
@@ -582,6 +619,38 @@ $("#image-download-btn")?.addEventListener("click", () => {
         return;
     }
     lastImageUrls.forEach((img) => downloadImage(img.url, img.filename));
+});
+
+$("#image-share-btn")?.addEventListener("click", async () => {
+    if (lastImageUrls.length === 0) {
+        toast("Generate an image first.", "info");
+        return;
+    }
+    
+    try {
+        const filesToShare = [];
+        for (const img of lastImageUrls) {
+            const response = await fetch(img.url);
+            const blob = await response.blob();
+            filesToShare.push(new File([blob], img.filename, { type: blob.type }));
+        }
+
+        if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
+            await shareContent({
+                title: "Prism AI - Generated Images",
+                files: filesToShare
+            });
+        } else {
+            // Fallback
+            await shareContent({
+                title: "Prism AI - Generated Image",
+                text: "Check out this image I generated on Prism AI!"
+            });
+        }
+    } catch (err) {
+        console.error("Share error:", err);
+        toast("Failed to prepare images for sharing.", "error");
+    }
 });
 
 // Handle browser back/forward navigation
