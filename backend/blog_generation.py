@@ -33,9 +33,14 @@ async def generate_blog(
 
     prompt = f"""You are a professional SEO blog writer.
 
-Write a high-quality, engaging, and SEO-optimized blog article about the following product:
+Write a high-quality, engaging, and SEO-optimized blog article based on the following product description provided by the user:
 
-Product Name: {product_name}
+--- USER INPUT ---
+{product_name}
+--- END USER INPUT ---
+
+The user input above may be a simple product name (e.g. "Tesla Model S") or a detailed description with specific features, target audience, use cases, and other context. Use ALL the details provided to create a highly tailored and specific article. If only a product name is given, use your knowledge to write a comprehensive article about it.
+
 Tone: {tone}
 Word Count: Approximately {word_count} words
 
@@ -53,6 +58,7 @@ Introduction:
 Main Content:
 <Use H2 and H3 headings properly>
 <Cover product features, benefits, and use cases>
+<Incorporate any specific details the user provided>
 <Make content informative and structured>
 
 Conclusion:

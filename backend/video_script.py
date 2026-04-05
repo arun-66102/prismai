@@ -33,9 +33,14 @@ async def generate_video_script(
 
     prompt = f"""You are a professional video script writer and content strategist.
 
-Create a highly engaging and structured video script for the following product:
+Create a highly engaging and structured video script based on the following product description provided by the user:
 
-Product Name: {product_name}
+--- USER INPUT ---
+{product_name}
+--- END USER INPUT ---
+
+The user input above may be a simple product name (e.g. "iPhone 16 Pro") or a detailed description with specific features, target audience, use cases, and other context. Use ALL the details provided to create a highly tailored and specific script. If only a product name is given, use your knowledge to create a compelling script about it.
+
 Tone: {tone}
 Video Duration: {duration_mins} minutes
 
@@ -49,6 +54,7 @@ Introduction:
 
 Main Content:
 <Cover product features, benefits, and use cases>
+<Incorporate any specific details the user provided>
 <Use storytelling or real-world examples>
 <Keep pacing appropriate for {duration_mins} minute video>
 

@@ -81,19 +81,19 @@ else:
 
 # ─── Request Models (with validation) ────────────────────────────────────────
 class BlogRequest(BaseModel):
-    product_name: str = Field(..., min_length=1, max_length=100, description="Name of the product")
+    product_name: str = Field(..., min_length=1, max_length=1000, description="Product name or detailed description")
     tone: str = Field(..., min_length=1, max_length=50, description="Writing tone")
     word_count: int = Field(..., ge=100, le=5000, description="Approximate word count (100-5000)")
 
 
 class VideoRequest(BaseModel):
-    product_name: str = Field(..., min_length=1, max_length=100, description="Name of the product")
+    product_name: str = Field(..., min_length=1, max_length=1000, description="Product name or detailed description")
     tone: str = Field(..., min_length=1, max_length=50, description="Writing tone")
     duration: int = Field(..., ge=1, le=30, description="Video duration in minutes (1-30)")
 
 
 class ImageRequest(BaseModel):
-    product_name: str = Field(..., min_length=1, max_length=100, description="Name of the product")
+    product_name: str = Field(..., min_length=1, max_length=1000, description="Product name or detailed description")
     style: VALID_STYLES = Field(..., description="Visual style for the image")
     platform: VALID_PLATFORMS = Field(..., description="Target social media platform")
     seed: int | None = Field(None, description="Optional seed for reproducible generation")

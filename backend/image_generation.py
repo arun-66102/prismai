@@ -95,14 +95,20 @@ async def _generate_image_prompt(
     meta_prompt = f"""You are an expert social media visual designer.
 
 Generate a detailed, vivid image generation prompt for an AI diffusion model.
-The image should be a stunning social media graphic for the following:
+The image should be a stunning social media graphic based on the following product description:
 
-Product Name: {product_name}
+--- USER INPUT ---
+{product_name}
+--- END USER INPUT ---
+
+The user input above may be a simple product name (e.g. "Nike Air Max") or a detailed description with specific features, colors, materials, target audience, and other context. Extract ALL visual cues from the user's description to craft a highly specific and tailored image prompt. If only a product name is given, use your knowledge to imagine the product visually.
+
 Visual Style: {style}
 Target Platform: {platform}
 
 Requirements:
 - Describe colors, composition, lighting, and mood in detail
+- Incorporate any specific visual details the user mentioned (colors, materials, shapes, etc.)
 - Make it visually striking and scroll-stopping for {platform}
 - Do NOT ask the model to render any text or typography — diffusion models handle text poorly
 - Focus on abstract shapes, product imagery, and visual storytelling instead

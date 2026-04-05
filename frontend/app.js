@@ -459,7 +459,7 @@ $("#blog-form")?.addEventListener("submit", async (e) => {
     const tone = $("#blog-tone").value;
     const word_count = parseInt($("#blog-words").value);
 
-    if (!product_name) return toast("Please enter a product name.", "error");
+    if (!product_name) return toast("Please describe your product.", "error");
 
     showLoading("Drafting Blog Article...");
     try {
@@ -513,7 +513,7 @@ $("#video-form")?.addEventListener("submit", async (e) => {
     const tone = $("#video-tone").value;
     const duration = parseInt($("#video-duration").value);
 
-    if (!product_name) return toast("Please enter a product name.", "error");
+    if (!product_name) return toast("Please describe your product.", "error");
 
     showLoading("Writing Video Script...");
     try {
@@ -567,7 +567,7 @@ $("#image-form")?.addEventListener("submit", async (e) => {
     const platform = $("#image-platform").value;
     const n = parseInt($("#image-count").value);
 
-    if (!product_name) return toast("Please enter a product name.", "error");
+    if (!product_name) return toast("Please describe your product.", "error");
 
     showLoading("Synthesizing Image...");
     try {
