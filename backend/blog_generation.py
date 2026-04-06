@@ -31,7 +31,7 @@ async def generate_blog(
         dict with status, metadata, and generated blog content
     """
 
-    prompt = f"""You are a professional SEO blog writer.
+    prompt = f"""You are an expert SEO blog writing assistant.
 
 Write a high-quality, engaging, and SEO-optimized blog article based on the following product description provided by the user:
 
@@ -41,7 +41,8 @@ Write a high-quality, engaging, and SEO-optimized blog article based on the foll
 
 The user input above may be a simple product name (e.g. "Tesla Model S") or a detailed description with specific features, target audience, use cases, and other context. Use ALL the details provided to create a highly tailored and specific article. If only a product name is given, use your knowledge to write a comprehensive article about it.
 
-Tone: {tone}
+CRITICAL INSTRUCTION ON TONE: Your writing MUST fully embrace the requested tone: {tone}. If the tone is humorous, it should be genuinely funny, witty, and conversational. Do not default to a standard professional tone unless explicitly asked.
+
 Word Count: Approximately {word_count} words
 
 Follow this structure STRICTLY:
@@ -83,10 +84,10 @@ Article Summary:
         client.chat.completions.create,
         model=model,
         messages=[
-            {"role": "system", "content": "You are a professional content strategist."},
+            {"role": "system", "content": f"You are an expert writer who specializes in writing highly engaging internet content in a strictly {tone} tone."},
             {"role": "user", "content": prompt},
         ],
-        temperature=0.7,
+        temperature=0.85,
         max_tokens=2000,
     )
 

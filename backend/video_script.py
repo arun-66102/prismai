@@ -31,7 +31,7 @@ async def generate_video_script(
         dict with status, metadata, and generated script
     """
 
-    prompt = f"""You are a professional video script writer and content strategist.
+    prompt = f"""You are an expert video script writer.
 
 Create a highly engaging and structured video script based on the following product description provided by the user:
 
@@ -41,7 +41,8 @@ Create a highly engaging and structured video script based on the following prod
 
 The user input above may be a simple product name (e.g. "iPhone 16 Pro") or a detailed description with specific features, target audience, use cases, and other context. Use ALL the details provided to create a highly tailored and specific script. If only a product name is given, use your knowledge to create a compelling script about it.
 
-Tone: {tone}
+CRITICAL INSTRUCTION ON TONE: Your writing MUST fully embrace the requested tone: {tone}. If the tone is humorous, it should be genuinely funny, witty, and conversationally entertaining. If the tone is professional, keep it formal. Under no circumstances should you default to a standard corporate tone unless explicitly requested.
+
 Video Duration: {duration_mins} minutes
 
 Follow this structure STRICTLY:
@@ -76,10 +77,10 @@ Important: Make sure the script feels natural when spoken aloud and fits within 
         client.chat.completions.create,
         model=model,
         messages=[
-            {"role": "system", "content": "You are a professional video script creator."},
+            {"role": "system", "content": f"You are an expert script writer who specializes in creating highly engaging video content in a strictly {tone} tone."},
             {"role": "user", "content": prompt},
         ],
-        temperature=0.7,
+        temperature=0.85,
         max_tokens=2000,
     )
 
