@@ -115,9 +115,9 @@ checkHealth();
 // ─── Tab Switching ──────────────────────────────────────────────────────
 $$(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-        // If not logged in and clicking a generator tab, force to login
+        // If not logged in and clicking a generator/history tab, force to login
         if (!currentUser && ["blog", "video", "image"].includes(btn.dataset.tab)) {
-            toast("Please login to generate content", "info");
+            toast("Please login to access this feature", "info");
             switchTab("login");
             return;
         }
@@ -158,6 +158,11 @@ function switchTab(tabId, updateHistory = true) {
 
     if (updateHistory) {
         window.history.pushState({ tabId: tabId }, "", `#${tabId}`);
+    }
+
+    // Auto-fetch tool-specific history for sidebars
+    if (currentUser && ["blog", "video", "image", "intro"].includes(tabId)) {
+        fetchSidebarHistory(tabId);
     }
 }
 
@@ -653,6 +658,165 @@ $("#image-share-btn")?.addEventListener("click", async () => {
     }
 });
 
+// ─── Sidebar Generation History ─────────────────────────────────────────
+
+function timeAgo(dateStr) {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const seconds = Math.floor((now - date) / 1000);
+    if (seconds < 60) return "just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+async function fetchSidebarHistory(type) {
+    if (!currentUser || !accessToken) return;
+    try {
+        if (type === "intro") {
+            const [allData, blogData, videoData, imageData] = await Promise.all([
+                apiGet(`/history?limit=10&offset=0`),
+                apiGet(`/history?type=blog&limit=10&offset=0`),
+                apiGet(`/history?type=video&limit=10&offset=0`),
+                apiGet(`/history?type=image&limit=10&offset=0`)
+            ]);
+            renderSidebarHistory("intro-all", allData.items, allData.total);
+            renderSidebarHistory("intro-blog", blogData.items, blogData.total);
+            renderSidebarHistory("intro-video", videoData.items, videoData.total);
+            renderSidebarHistory("intro-image", imageData.items, imageData.total);
+        } else {
+            const data = await apiGet(`/history?type=${type}&limit=20&offset=0`);
+            renderSidebarHistory(type, data.items, data.total);
+        }
+    } catch (err) {
+        console.error(`Failed to fetch ${type} history:`, err);
+    }
+}
+
+function renderSidebarHistory(type, items, total) {
+    const listEl = $(`#sidebar-history-${type}`);
+    const countEl = $(`#${type}-history-count`);
+    if (!listEl) return;
+    
+    if (countEl) countEl.textContent = total;
+    
+    if (items.length === 0) {
+        listEl.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text3); font-size: 13px;">No history yet.</div>`;
+        return;
+    }
+    
+    listEl.innerHTML = "";
+    items.forEach(item => {
+        const params = item.input_params || {};
+        const title = params.product_name || "Untitled";
+        
+        const el = document.createElement("div");
+        el.className = "history-sidebar-item";
+        el.innerHTML = `
+            <div class="history-sidebar-title">${title}</div>
+            <div class="history-sidebar-meta">${timeAgo(item.created_at)}</div>
+            <button class="history-sidebar-delete" title="Delete">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        `;
+        
+        // Load into form on click
+        el.addEventListener("click", (e) => {
+            if (e.target.closest(".history-sidebar-delete")) return;
+            if (type.startsWith("intro")) {
+                // Determine gen_type and switch to it first, then reuse
+                const targetTab = item.gen_type || "blog";
+                switchTab(targetTab);
+                setTimeout(() => reuseGeneration(item), 100);
+            } else {
+                reuseGeneration(item);
+            }
+        });
+        
+        // Delete item
+        el.querySelector(".history-sidebar-delete").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            if (!confirm("Delete this history entry?")) return;
+            try {
+                await apiDelete(`/history/${item.id}`);
+                // Refresh list
+                const fetchType = type.startsWith("intro") ? "intro" : type;
+                fetchSidebarHistory(fetchType);
+                toast("Entry deleted.", "success");
+            } catch (err) {
+                toast("Failed to delete.", "error");
+            }
+        });
+        
+        listEl.appendChild(el);
+    });
+}
+
+function reuseGeneration(item) {
+    const params = item.input_params || {};
+    const type = item.gen_type;
+    
+    if (type === "blog") {
+        const productEl = $("#blog-product");
+        const toneEl = $("#blog-tone");
+        const wordsEl = $("#blog-words");
+        if (productEl) productEl.value = params.product_name || "";
+        if (toneEl) toneEl.value = params.tone || "Informative";
+        if (wordsEl) { wordsEl.value = params.word_count || 500; $("#blog-words-val").textContent = params.word_count || 500; }
+        syncCustomDropdown(toneEl);
+        toast("Loaded from history!", "success");
+    } else if (type === "video") {
+        const productEl = $("#video-product");
+        const toneEl = $("#video-tone");
+        const durationEl = $("#video-duration");
+        if (productEl) productEl.value = params.product_name || "";
+        if (toneEl) toneEl.value = params.tone || "Energetic";
+        if (durationEl) { durationEl.value = params.duration || 3; $("#video-duration-val").textContent = `${params.duration || 3} min`; }
+        syncCustomDropdown(toneEl);
+        toast("Loaded from history!", "success");
+    } else if (type === "image") {
+        const productEl = $("#image-product");
+        const styleEl = $("#image-style");
+        const platformEl = $("#image-platform");
+        if (productEl) productEl.value = params.product_name || "";
+        if (styleEl) styleEl.value = params.style || "vibrant";
+        if (platformEl) platformEl.value = params.platform || "instagram";
+        syncCustomDropdown(styleEl);
+        syncCustomDropdown(platformEl);
+        toast("Loaded from history!", "success");
+    }
+}
+
+function syncCustomDropdown(nativeSelect) {
+    if (!nativeSelect) return;
+    const wrapper = nativeSelect.closest(".custom-dropdown");
+    if (!wrapper) return;
+    const trigger = wrapper.querySelector(".custom-dropdown-text");
+    const options = wrapper.querySelectorAll(".custom-dropdown-option");
+    const selectedOpt = nativeSelect.options[nativeSelect.selectedIndex];
+    if (trigger && selectedOpt) trigger.textContent = selectedOpt.textContent;
+    options.forEach(opt => {
+        opt.classList.toggle("selected", opt.dataset.value === nativeSelect.value);
+    });
+}
+
+async function apiDelete(endpoint) {
+    if (!accessToken) throw new Error("No token");
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${accessToken}` },
+    });
+    if (!res.ok) {
+        if (res.status === 401) logout();
+        throw new Error("Failed to delete");
+    }
+    return res.json();
+}
+
 // Handle browser back/forward navigation
 window.addEventListener("popstate", (event) => {
     // If the history state exists, switch to that tab without pushing a NEW history event
@@ -668,3 +832,195 @@ window.addEventListener("popstate", (event) => {
         }
     }
 });
+
+// ─── UI Interactions ────────────────────────────────────────────────────
+// Sidebar Toggle
+document.querySelectorAll(".sidebar-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const body = btn.closest(".workspace-shell")?.querySelector(".workspace-body");
+        if (body) {
+            body.classList.toggle("sidebar-closed");
+        }
+    });
+});
+
+// ─── Global History Panel ─────────────────────────────────────────────
+const globalHistory = {
+    items: [],
+    total: 0,
+    hasMore: false,
+    currentFilter: "all",
+    offset: 0,
+    pageSize: 15
+};
+
+const gTypeIcons = {
+    blog: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+    video: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`,
+    image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
+};
+
+async function fetchGlobalHistory(append = false) {
+    if (!currentUser || !accessToken) return;
+    try {
+        const filter = globalHistory.currentFilter === "all" ? "" : `&type=${globalHistory.currentFilter}`;
+        const data = await apiGet(`/history?limit=${globalHistory.pageSize}&offset=${globalHistory.offset}${filter}`);
+        
+        if (append) {
+            globalHistory.items = [...globalHistory.items, ...data.items];
+        } else {
+            globalHistory.items = data.items;
+        }
+        globalHistory.total = data.total;
+        globalHistory.hasMore = data.has_more;
+        
+        renderGlobalHistory();
+    } catch (err) {
+        toast("Failed to load history.", "error");
+    }
+}
+
+function renderGlobalHistory() {
+    const listEl = $("#history-list");
+    const emptyEl = $("#history-empty");
+    const actionsBar = $("#history-actions-bar");
+    const countEl = $("#history-count");
+    const loadMoreEl = $("#history-load-more");
+    
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    
+    if (globalHistory.items.length === 0) {
+        emptyEl.style.display = "flex";
+        actionsBar.style.display = "none";
+        loadMoreEl.style.display = "none";
+        return;
+    }
+    
+    emptyEl.style.display = "none";
+    actionsBar.style.display = "flex";
+    countEl.textContent = `${globalHistory.total} generation${globalHistory.total !== 1 ? "s" : ""}`;
+    
+    globalHistory.items.forEach(item => {
+        listEl.appendChild(createGlobalHistoryCard(item));
+    });
+    
+    loadMoreEl.style.display = globalHistory.hasMore ? "flex" : "none";
+}
+
+function createGlobalHistoryCard(item) {
+    const card = document.createElement("div");
+    card.className = "history-card";
+    const params = item.input_params || {};
+    const genType = item.gen_type;
+    
+    // Build brief body content matching old UI closely
+    let bodyContent = "";
+    if (genType === "image" && item.image_urls && item.image_urls.length > 0) {
+        const imgs = item.image_urls.map(url => {
+            const fullUrl = url.startsWith("data:") || url.startsWith("http") ? url : `${API_BASE}${url}`;
+            return `<img src="${fullUrl}" alt="Generated image" loading="lazy" onclick="window.open(this.src,'_blank')">`;
+        }).join("");
+        bodyContent += `<div class="history-images">${imgs}</div>`;
+    } else if (item.output_data) {
+        const truncated = item.output_data.length > 1000 ? item.output_data.substring(0, 1000) + "..." : item.output_data;
+        bodyContent += `<div class="history-content">${truncated}</div>`;
+    }
+    
+    card.innerHTML = `
+        <div class="history-card-header">
+            <div class="history-type-icon ${genType}">${gTypeIcons[genType] || ""}</div>
+            <div class="history-card-info">
+                <div class="history-card-title">${params.product_name || "Untitled"}</div>
+                <div class="history-card-meta">
+                    <span class="history-type-badge ${genType}">${genType}</span>
+                    <span>${timeAgo(item.created_at)}</span>
+                </div>
+            </div>
+            <div class="history-card-actions">
+                <button class="btn-icon-sm ghistory-reuse-btn" title="Re-use settings">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                </button>
+                <button class="btn-icon-danger ghistory-delete-btn" title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+            <svg class="history-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div class="history-card-body">${bodyContent}</div>
+    `;
+    
+    card.querySelector(".history-card-header").addEventListener("click", (e) => {
+        if (e.target.closest(".ghistory-reuse-btn") || e.target.closest(".ghistory-delete-btn")) return;
+        card.classList.toggle("expanded");
+    });
+    
+    card.querySelector(".ghistory-reuse-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        reuseGeneration(item);
+    });
+    
+    card.querySelector(".ghistory-delete-btn").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (!confirm("Delete this history entry?")) return;
+        try {
+            await apiDelete(`/history/${item.id}`);
+            fetchGlobalHistory();
+        } catch (err) { }
+    });
+    
+    return card;
+}
+
+// Global Filter Chips
+$("#history-filters")?.addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+    $$("#history-filters .filter-chip").forEach(c => {
+        c.classList.remove("active");
+        c.style.background = "rgba(255,255,255,.04)";
+        c.style.color = "var(--text3)";
+    });
+    chip.classList.add("active");
+    chip.style.background = "var(--amber)";
+    chip.style.color = "#000";
+    
+    globalHistory.currentFilter = chip.dataset.filter;
+    globalHistory.offset = 0;
+    fetchGlobalHistory();
+});
+
+$("#history-load-more-btn")?.addEventListener("click", () => {
+    globalHistory.offset += globalHistory.pageSize;
+    fetchGlobalHistory(true);
+});
+
+$("#history-clear-all")?.addEventListener("click", async () => {
+    if (!confirm("Delete all history?")) return;
+    try {
+        await apiDelete("/history");
+        fetchGlobalHistory();
+    } catch(e) {}
+});
+
+// Update standard history switch to load global history
+const originalSwitchTab = switchTab;
+window.switchTab = function(tabId, updateHist = true) {
+    originalSwitchTab(tabId, updateHist);
+    if (tabId === "history" && currentUser) {
+        globalHistory.currentFilter = "all";
+        globalHistory.offset = 0;
+        $$("#history-filters .filter-chip").forEach(c => {
+            c.classList.remove("active");
+            c.style.background = "rgba(255,255,255,.04)";
+            c.style.color = "var(--text3)";
+        });
+        const allChip = $("#history-filters .filter-chip[data-filter='all']");
+        if(allChip) {
+            allChip.classList.add("active");
+            allChip.style.background = "var(--amber)";
+            allChip.style.color = "#000";
+        }
+        fetchGlobalHistory();
+    }
+}

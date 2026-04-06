@@ -216,12 +216,57 @@
 
         <!-- ═══ Intro Dashboard Panel ═══ -->
         <section id="panel-intro" class="tab-panel">
-            <div class="workspace-wrapper" style="display: flex; align-items: center; justify-content: center; min-height: 70vh; flex-direction: column;">
-                <div style="text-align: center; margin-bottom: 3rem; margin-top: 2rem;">
-                    <h2 id="intro-greeting" style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.5rem;">SELECT A TOOL</h2>
-                    <p style="color: var(--text2);">Choose what you'd like to generate today.</p>
-                </div>
-                <!-- Dashboard Stats -->
+            <div class="workspace-wrapper" style="padding-top: 96px;">
+                <div class="workspace-shell reveal" style="border: none; background: transparent; box-shadow: none;">
+                    <div class="workspace-header" style="background: transparent; border-bottom: none; display: flex; justify-content: flex-start; padding-left: 20px;">
+                        <div class="workspace-tabs" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border); padding: 2px 4px; backdrop-filter: blur(8px);">
+                            <button class="btn-icon-sm sidebar-toggle" title="Toggle Sidebar" style="color: var(--text2); background: none; border: none; cursor: pointer;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                            </button>
+                            <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default; padding: 0 8px;">Global History</span>
+                        </div>
+                    </div>
+                    <div class="workspace-body dashboard-body sidebar-closed" style="background: transparent;">
+                        
+                        <!-- Dashboard Sidebar -->
+                        <div class="ws-history-sidebar" style="background: var(--surface); border-radius: 12px; border: 1px solid var(--border); margin: 0 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); overflow-y: auto;">
+                            <!-- Overall Section -->
+                            <div class="ws-history-header" style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Overall</span>
+                                <span id="intro-all-history-count" class="history-badge" style="font-size: 11px;">0</span>
+                            </div>
+                            <div class="ws-history-list" id="sidebar-history-intro-all" style="min-height: 50px;"></div>
+
+                            <!-- Blog Section -->
+                            <div class="ws-history-header" style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Blogs</span>
+                                <span id="intro-blog-history-count" class="history-badge" style="font-size: 11px;">0</span>
+                            </div>
+                            <div class="ws-history-list" id="sidebar-history-intro-blog" style="min-height: 50px;"></div>
+
+                            <!-- Video Section -->
+                            <div class="ws-history-header" style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> Videos</span>
+                                <span id="intro-video-history-count" class="history-badge" style="font-size: 11px;">0</span>
+                            </div>
+                            <div class="ws-history-list" id="sidebar-history-intro-video" style="min-height: 50px;"></div>
+
+                            <!-- Image Section -->
+                            <div class="ws-history-header" style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Images</span>
+                                <span id="intro-image-history-count" class="history-badge" style="font-size: 11px;">0</span>
+                            </div>
+                            <div class="ws-history-list" id="sidebar-history-intro-image" style="min-height: 50px;"></div>
+                        </div>
+
+                        <!-- Main Dashboard Area -->
+                        <div class="ws-output-col" style="background: transparent; padding: 0; align-items: center; justify-content: center; border: none;">
+                            <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%;">
+                                <div style="text-align: center; margin-bottom: 3rem; margin-top: 1rem;">
+                                    <h2 id="intro-greeting" style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.5rem;">SELECT A TOOL</h2>
+                                    <p style="color: var(--text2);">Choose what you'd like to generate today.</p>
+                                </div>
+                                <!-- Dashboard Stats -->
                 <div class="dashboard-stats" id="dashboard-stats" style="display: none; gap: 1.5rem; justify-content: center; margin-bottom: 3rem; flex-wrap: wrap;">
                     <button class="stat-box tab-btn" data-tab="blog" style="background: rgba(255,255,255,.03); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--border2); border-radius: 16px; padding: 1.5rem 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-width: 200px; transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease); cursor: none;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.2)'; this.style.background='rgba(255,255,255,.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.background='rgba(255,255,255,.03)';">
                         <span style="font-family: var(--font-display); font-size: 36px; color: var(--amber); line-height: 1;" id="dash-stat-blogs">0</span>
@@ -289,6 +334,11 @@
                 </div>
             </div>
         </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -310,7 +360,10 @@
                                 <div class="traffic-dot yellow"></div>
                                 <div class="traffic-dot green"></div>
                             </div>
-                            <div class="workspace-tabs">
+                            <div class="workspace-tabs" style="display: flex; align-items: center; gap: 4px;">
+                                <button class="btn-icon-sm sidebar-toggle" title="Toggle Sidebar" style="color: var(--text2); background: none; border: none; cursor: none;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                                </button>
                                 <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
                                 <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Blog Generator</span>
                             </div>
@@ -321,6 +374,13 @@
                         </div>
                     </div>
                     <div class="workspace-body">
+                        <!-- History Sidebar -->
+                        <div class="ws-history-sidebar">
+                            <div class="ws-history-header">Recent Blogs <span id="blog-history-count" class="history-badge">0</span></div>
+                            <div class="ws-history-list" id="sidebar-history-blog">
+                                <div style="padding: 20px; text-align: center; color: var(--text3); font-size: 13px;">No history yet.</div>
+                            </div>
+                        </div>
                         <!-- Left Form -->
                         <div class="ws-form-col">
                             <form id="blog-form" class="gen-form">
@@ -393,7 +453,10 @@
                                 <div class="traffic-dot yellow"></div>
                                 <div class="traffic-dot green"></div>
                             </div>
-                            <div class="workspace-tabs">
+                            <div class="workspace-tabs" style="display: flex; align-items: center; gap: 4px;">
+                                <button class="btn-icon-sm sidebar-toggle" title="Toggle Sidebar" style="color: var(--text2); background: none; border: none; cursor: none;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                                </button>
                                 <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
                                 <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Video Scripts</span>
                             </div>
@@ -404,6 +467,13 @@
                         </div>
                     </div>
                     <div class="workspace-body">
+                        <!-- History Sidebar -->
+                        <div class="ws-history-sidebar">
+                            <div class="ws-history-header">Recent Videos <span id="video-history-count" class="history-badge">0</span></div>
+                            <div class="ws-history-list" id="sidebar-history-video">
+                                <div style="padding: 20px; text-align: center; color: var(--text3); font-size: 13px;">No history yet.</div>
+                            </div>
+                        </div>
                         <!-- Left Form -->
                         <div class="ws-form-col">
                             <form id="video-form" class="gen-form">
@@ -475,7 +545,10 @@
                                 <div class="traffic-dot yellow"></div>
                                 <div class="traffic-dot green"></div>
                             </div>
-                            <div class="workspace-tabs">
+                            <div class="workspace-tabs" style="display: flex; align-items: center; gap: 4px;">
+                                <button class="btn-icon-sm sidebar-toggle" title="Toggle Sidebar" style="color: var(--text2); background: none; border: none; cursor: none;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                                </button>
                                 <button class="ws-tab tab-btn" data-tab="intro" style="color: var(--text2);">← Dashboard</button>
                                 <span class="ws-tab" style="color: var(--text); font-weight: 600; cursor: default;">Image Synthesis</span>
                             </div>
@@ -486,6 +559,13 @@
                         </div>
                     </div>
                     <div class="workspace-body">
+                        <!-- History Sidebar -->
+                        <div class="ws-history-sidebar">
+                            <div class="ws-history-header">Recent Images <span id="image-history-count" class="history-badge">0</span></div>
+                            <div class="ws-history-list" id="sidebar-history-image">
+                                <div style="padding: 20px; text-align: center; color: var(--text3); font-size: 13px;">No history yet.</div>
+                            </div>
+                        </div>
                         <!-- Left Form -->
                         <div class="ws-form-col">
                             <form id="image-form" class="gen-form">
@@ -553,6 +633,55 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ History Panel ═══ -->
+        <section id="panel-history" class="tab-panel">
+            <div class="history-wrapper" style="max-width: 1000px; margin: 0 auto; padding: 96px 40px 100px;">
+                <!-- Back to Dashboard -->
+                <div style="margin-bottom: 16px;">
+                    <button class="tab-btn" data-tab="intro" style="color: var(--text2); font-size: 14px; background: none; border: none; font-family: var(--font-body); padding: 8px 0; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        Back to Dashboard
+                    </button>
+                </div>
+
+                <!-- Tool Hero -->
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <div class="section-eyebrow">History</div>
+                    <h2 style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); letter-spacing: .04em; margin-bottom: 0.75rem; line-height: 1;">GENERATION HISTORY</h2>
+                    <p style="color: var(--text2); font-size: 16px; max-width: 500px; margin: 0 auto;">Browse, revisit, and re-use your past creations.</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="history-filters" id="history-filters" style="display: flex; gap: 8px; margin-bottom: 28px;">
+                    <button class="filter-chip active" data-filter="all" style="padding: 7px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--amber); color: #000;">All</button>
+                    <button class="filter-chip" data-filter="blog" style="padding: 7px 18px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text3);">Blogs</button>
+                    <button class="filter-chip" data-filter="video" style="padding: 7px 18px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text3);">Videos</button>
+                    <button class="filter-chip" data-filter="image" style="padding: 7px 18px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text3);">Images</button>
+                </div>
+
+                <!-- Actions bar -->
+                <div class="history-actions-bar" id="history-actions-bar" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <span class="history-count" id="history-count" style="color: var(--text3);"></span>
+                    <button class="btn-clear-all" id="history-clear-all" style="color: #FA5252; background: rgba(250,82,82,.08); border: 1px solid rgba(250,82,82,.15); padding: 6px 14px; border-radius: 8px;">Clear All</button>
+                </div>
+
+                <!-- History List -->
+                <div class="history-list" id="history-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+
+                <!-- Empty State -->
+                <div class="history-empty" id="history-empty" style="display: none; text-align: center; padding: 80px 20px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; opacity: 0.4; margin-bottom: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <div style="font-weight: 600; color: var(--text2); margin-bottom: 6px;">No generations yet</div>
+                    <div style="color: var(--text3);">Your generated logs will appear here.</div>
+                </div>
+
+                <!-- Load More -->
+                <div class="history-load-more" id="history-load-more" style="display: none; justify-content: center; margin-top: 24px;">
+                    <button class="btn-load-more" id="history-load-more-btn" style="padding: 10px 32px; border-radius: 10px; border: 1px solid var(--border2); background: rgba(255,255,255,.04);">Load More</button>
                 </div>
             </div>
         </section>
@@ -826,6 +955,85 @@
                 });
             });
         });
+
+        // ─── Custom Dropdown Init ───
+        (function() {
+            const checkSVG = `<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            const arrowSVG = `<svg class="custom-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+
+            document.querySelectorAll('.gen-form select').forEach(nativeSelect => {
+                // Create wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'custom-dropdown';
+
+                // Hide native select but keep it for form data
+                nativeSelect.classList.add('native-select');
+                nativeSelect.parentNode.insertBefore(wrapper, nativeSelect);
+                wrapper.appendChild(nativeSelect);
+
+                // Get selected option text
+                const selectedOpt = nativeSelect.options[nativeSelect.selectedIndex];
+                const selectedText = selectedOpt ? selectedOpt.textContent : '';
+
+                // Create trigger button
+                const trigger = document.createElement('button');
+                trigger.type = 'button';
+                trigger.className = 'custom-dropdown-trigger';
+                trigger.innerHTML = `<span class="custom-dropdown-text">${selectedText}</span>${arrowSVG}`;
+                wrapper.insertBefore(trigger, nativeSelect);
+
+                // Create dropdown menu
+                const menu = document.createElement('div');
+                menu.className = 'custom-dropdown-menu';
+
+                Array.from(nativeSelect.options).forEach((opt, idx) => {
+                    const optBtn = document.createElement('button');
+                    optBtn.type = 'button';
+                    optBtn.className = 'custom-dropdown-option';
+                    if (opt.selected) optBtn.classList.add('selected');
+                    optBtn.dataset.value = opt.value;
+                    optBtn.innerHTML = `<span>${opt.textContent}</span>${checkSVG}`;
+
+                    optBtn.addEventListener('click', () => {
+                        // Update native select
+                        nativeSelect.value = opt.value;
+                        nativeSelect.dispatchEvent(new Event('change'));
+
+                        // Update trigger text
+                        trigger.querySelector('.custom-dropdown-text').textContent = opt.textContent;
+
+                        // Update selected states
+                        menu.querySelectorAll('.custom-dropdown-option').forEach(o => o.classList.remove('selected'));
+                        optBtn.classList.add('selected');
+
+                        // Close
+                        wrapper.classList.remove('open');
+                    });
+
+                    menu.appendChild(optBtn);
+                });
+
+                wrapper.appendChild(menu);
+
+                // Toggle open/close
+                trigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close other dropdowns first
+                    document.querySelectorAll('.custom-dropdown.open').forEach(dd => {
+                        if (dd !== wrapper) dd.classList.remove('open');
+                    });
+                    wrapper.classList.toggle('open');
+                });
+            });
+
+            // Close all dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-dropdown')) {
+                    document.querySelectorAll('.custom-dropdown.open').forEach(dd => dd.classList.remove('open'));
+                }
+            });
+        })();
         
     </script>
 </body>

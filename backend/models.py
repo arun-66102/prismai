@@ -38,3 +38,17 @@ class UsageStats(BaseModel):
 class UserProfileResponse(BaseModel):
     user: UserResponse
     usage: UsageStats
+
+class HistoryItem(BaseModel):
+    id: int
+    gen_type: str
+    input_params: dict
+    output_data: str | None = None
+    image_urls: list[str] | None = None
+    image_prompt: str | None = None
+    created_at: datetime
+
+class HistoryListResponse(BaseModel):
+    items: list[HistoryItem]
+    total: int
+    has_more: bool

@@ -49,21 +49,24 @@ RATE_LIMITS = {
         "generate-video-script": 3,
         "generate-image": 2,
         "image_batch_max": 1,
-        "watermark": True
+        "watermark": True,
+        "history_limit": 25
     },
     "pro": {
         "generate-blog": 50,
         "generate-video-script": 50,
         "generate-image": 30,
         "image_batch_max": 4,
-        "watermark": False
+        "watermark": False,
+        "history_limit": 500
     },
     "business": {
         "generate-blog": "inf",
         "generate-video-script": "inf",
         "generate-image": "inf",
         "image_batch_max": 4,
-        "watermark": False
+        "watermark": False,
+        "history_limit": "inf"
     }
 }
 

@@ -23,7 +23,7 @@ from blog_generation import generate_blog
 from video_script import generate_video_script
 from image_generation import generate_image, IMAGE_DIR
 import database
-from database import init_db, log_usage
+from database import init_db, log_usage, save_generation
 from auth import (
     get_password_hash, 
     verify_password, 
@@ -31,7 +31,11 @@ from auth import (
     create_refresh_token
 )
 from middleware import get_current_user, get_rate_limiter
-from models import RegisterRequest, TokenResponse, UserResponse, UserProfileResponse, UsageStats
+from models import (
+    RegisterRequest, TokenResponse, UserResponse, 
+    UserProfileResponse, UsageStats,
+    HistoryItem, HistoryListResponse
+)
 import database
 import admin
 
@@ -211,6 +215,12 @@ async def create_blog(request: BlogRequest, current_user: dict = Depends(get_cur
             word_count=request.word_count,
         )
         await log_usage(current_user["id"], "generate-blog")
+        
+        # Save to history
+        await _save_with_limit(current_user, "blog",
+            {"product_name": request.product_name, "tone": request.tone, "word_count": request.word_count},
+            output_data=result.get("generated_blog"))
+        
         limits = RATE_LIMITS.get(current_user["tier"], RATE_LIMITS["free"])
         return result
     except Exception as e:
@@ -228,6 +238,12 @@ async def create_video_script(request: VideoRequest, current_user: dict = Depend
             duration_mins=request.duration,
         )
         await log_usage(current_user["id"], "generate-video-script")
+        
+        # Save to history
+        await _save_with_limit(current_user, "video",
+            {"product_name": request.product_name, "tone": request.tone, "duration": request.duration},
+            output_data=result.get("generated_script"))
+        
         return result
     except Exception as e:
         logger.exception("Video script generation failed")
@@ -250,10 +266,108 @@ async def create_image(request: ImageRequest, current_user: dict = Depends(get_c
             watermark=watermark,
         )
         await log_usage(current_user["id"], "generate-image")
+        
+        # Save to history
+        img_urls = [img.get("image_url", "") for img in result.get("images", [])]
+        await _save_with_limit(current_user, "image",
+            {"product_name": request.product_name, "style": request.style, "platform": request.platform, "n": n},
+            image_urls=img_urls, image_prompt=result.get("image_prompt"))
+        
         return result
     except Exception as e:
         logger.exception("Image generation failed")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ─── History Helper ─────────────────────────────────────────────────────────
+async def _save_with_limit(user: dict, gen_type: str, input_params: dict,
+                           output_data: str = None, image_urls: list = None,
+                           image_prompt: str = None):
+    """Save generation to history, auto-pruning oldest entries if tier limit exceeded."""
+    try:
+        user_id = user["id"]
+        tier = user.get("tier", "free")
+        limits = RATE_LIMITS.get(tier, RATE_LIMITS["free"])
+        history_limit = limits.get("history_limit", 25)
+        
+        # Save the new entry
+        await save_generation(user_id, gen_type, input_params, output_data, image_urls, image_prompt)
+        
+        # Enforce limit for non-unlimited tiers
+        if str(history_limit).lower() not in ("inf", "unlimited"):
+            count = await database.get_history_count(user_id)
+            if count > int(history_limit):
+                # Delete oldest entries that exceed the limit
+                pool = await database.get_pool()
+                async with pool.acquire() as conn:
+                    await conn.execute('''
+                        DELETE FROM generation_history
+                        WHERE id IN (
+                            SELECT id FROM generation_history
+                            WHERE user_id = $1
+                            ORDER BY created_at ASC
+                            LIMIT $2
+                        )
+                    ''', user_id, count - int(history_limit))
+    except Exception as e:
+        logger.error(f"Failed to save generation history: {e}")
+
+
+# ─── History API Routes ─────────────────────────────────────────────────────
+from typing import Optional
+
+@app.get("/history", response_model=HistoryListResponse)
+async def get_history(
+    type: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get generation history for the current user."""
+    if type and type not in ("blog", "video", "image"):
+        raise HTTPException(status_code=400, detail="Invalid type filter. Use blog, video, or image.")
+    
+    limit = min(limit, 50)
+    items = await database.get_user_history(current_user["id"], gen_type=type, limit=limit, offset=offset)
+    total = await database.get_history_count(current_user["id"], gen_type=type)
+    
+    return {
+        "items": items,
+        "total": total,
+        "has_more": (offset + limit) < total
+    }
+
+
+@app.get("/history/{history_id}", response_model=HistoryItem)
+async def get_history_detail(
+    history_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get a single history entry."""
+    item = await database.get_history_item(history_id, current_user["id"])
+    if not item:
+        raise HTTPException(status_code=404, detail="History entry not found.")
+    return item
+
+
+@app.delete("/history/{history_id}")
+async def delete_history(
+    history_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a single history entry."""
+    deleted = await database.delete_history_item(history_id, current_user["id"])
+    if not deleted:
+        raise HTTPException(status_code=404, detail="History entry not found.")
+    return {"message": "History entry deleted."}
+
+
+@app.delete("/history")
+async def clear_history(
+    current_user: dict = Depends(get_current_user)
+):
+    """Clear all history for the current user."""
+    await database.delete_all_history(current_user["id"])
+    return {"message": "All history cleared."}
 
 
 # ─── Entry Point ──────────────────────────────────────────────────────────────
