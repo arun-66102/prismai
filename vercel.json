@@ -36,6 +36,10 @@
             "destination": "/api/index.py"
         },
         {
+            "source": "/translate",
+            "destination": "/api/index.py"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index.py"
         },
