@@ -75,6 +75,19 @@ async function shareContent(data) {
     }
 }
 
+async function translateResult(text, targetLang) {
+    showLoading(`Translating to ${targetLang}...`);
+    try {
+        const data = await apiPost("/translate", { text, target_language: targetLang });
+        return data.translated_text;
+    } catch (err) {
+        toast(`Translation failed: ${err.message}`, "error");
+        return null;
+    } finally {
+        hideLoading();
+    }
+}
+
 // ─── Theme Initialization ───────────────────────────────────────────────
 function updateThemeUI(theme) {
     document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -486,10 +499,27 @@ $("#blog-form")?.addEventListener("submit", async (e) => {
     }
 });
 
-// Copy & Download blog
+// Copy & Download blog & Translate
 $("#blog-copy")?.addEventListener("click", () => {
     if (lastBlogContent) copyText(lastBlogContent);
     else toast("Generate a blog first.", "info");
+});
+
+$("#blog-translate-lang")?.addEventListener("change", async (e) => {
+    const lang = e.target.value;
+    if (!lang) return;
+    if (!lastBlogContent) {
+        toast("Generate a blog first.", "info");
+        e.target.value = "";
+        return;
+    }
+    const translated = await translateResult(lastBlogContent, lang);
+    if (translated) {
+        lastBlogContent = translated;
+        $("#blog-result").textContent = translated;
+        toast(`Translated to ${lang}`, "success");
+    }
+    e.target.value = "";
 });
 
 $("#blog-download")?.addEventListener("click", () => {
@@ -539,10 +569,27 @@ $("#video-form")?.addEventListener("submit", async (e) => {
     }
 });
 
-// Copy & Download video script
+// Copy & Download video script & Translate
 $("#video-copy")?.addEventListener("click", () => {
     if (lastVideoContent) copyText(lastVideoContent);
     else toast("Generate a script first.", "info");
+});
+
+$("#video-translate-lang")?.addEventListener("change", async (e) => {
+    const lang = e.target.value;
+    if (!lang) return;
+    if (!lastVideoContent) {
+        toast("Generate a script first.", "info");
+        e.target.value = "";
+        return;
+    }
+    const translated = await translateResult(lastVideoContent, lang);
+    if (translated) {
+        lastVideoContent = translated;
+        $("#video-result").textContent = translated;
+        toast(`Translated to ${lang}`, "success");
+    }
+    e.target.value = "";
 });
 
 $("#video-download")?.addEventListener("click", () => {

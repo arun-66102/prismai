@@ -52,3 +52,7 @@ class HistoryListResponse(BaseModel):
     items: list[HistoryItem]
     total: int
     has_more: bool
+
+class TranslateRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="Text to translate")
+    target_language: str = Field(..., min_length=1, max_length=50, description="Target language")

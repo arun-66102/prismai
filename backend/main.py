@@ -34,10 +34,11 @@ from middleware import get_current_user, get_rate_limiter
 from models import (
     RegisterRequest, TokenResponse, UserResponse, 
     UserProfileResponse, UsageStats,
-    HistoryItem, HistoryListResponse
+    HistoryItem, HistoryListResponse, TranslateRequest
 )
 import database
 import admin
+from translation import translate_text
 
 logger = logging.getLogger("prism.api")
 
@@ -247,6 +248,20 @@ async def create_video_script(request: VideoRequest, current_user: dict = Depend
         return result
     except Exception as e:
         logger.exception("Video script generation failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/translate")
+async def translate_text_endpoint(request: TranslateRequest, current_user: dict = Depends(get_current_user)):
+    """Translate text to the target language."""
+    try:
+        result = await translate_text(
+            text=request.text,
+            target_language=request.target_language,
+        )
+        return result
+    except Exception as e:
+        logger.exception("Translation failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 
