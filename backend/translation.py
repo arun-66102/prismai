@@ -23,7 +23,13 @@ async def translate_text(
 
     prompt = f"""You are a professional translator. 
 Please translate the following text into {target_language}.
-Maintain the original format, tone, and structure. Only output the translated text and nothing else.
+
+CRITICAL INSTRUCTIONS:
+1. Maintain the original format, tone, and structure.
+2. DO NOT translate proper nouns, brand names (e.g., "Huda Beauty"), or specific product categories that are commonly used in English (e.g., "Foundation", "Concealer"). Keep them in English or transliterate them appropriately. Do NOT provide literal word-for-word translations like translating "Foundation" to a building base (e.g., "Adithalam" in Tamil).
+3. Context matters: The text may contain cosmetics and beauty terminology. Ensure translations make sense in the context of makeup/beauty.
+
+Only output the translated text and nothing else.
 
 --- TEXT ---
 {text}
