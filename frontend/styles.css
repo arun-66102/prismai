@@ -1114,7 +1114,8 @@ html[data-theme="light"] .auth-card {
 .form-group input[type="email"],
 .form-group input[type="password"],
 .form-group select,
-.form-group textarea {
+.form-group textarea,
+.translate-select {
   background: rgba(255,255,255,.04);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1130,13 +1131,15 @@ html[data-theme="light"] .form-group input[type="text"],
 html[data-theme="light"] .form-group input[type="email"],
 html[data-theme="light"] .form-group input[type="password"],
 html[data-theme="light"] .form-group select,
-html[data-theme="light"] .form-group textarea {
+html[data-theme="light"] .form-group textarea,
+html[data-theme="light"] .translate-select {
   background: rgba(0,0,0,.03);
 }
 
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.translate-select:focus {
   border-color: rgba(157,114,255,.5);
   box-shadow: 0 0 0 3px rgba(157,114,255,.1);
 }
@@ -1144,7 +1147,8 @@ html[data-theme="light"] .form-group textarea {
 .form-group input::placeholder,
 .form-group textarea::placeholder { color: var(--text3); }
 
-.form-group select {
+.form-group select,
+.translate-select {
   appearance: none;
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237E779F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -1154,13 +1158,15 @@ html[data-theme="light"] .form-group textarea {
 }
 
 /* Select dropdown option styling */
-.form-group select option {
+.form-group select option,
+.translate-select option {
   background: var(--surface);
   color: var(--text);
   padding: 8px;
 }
 
-html[data-theme="light"] .form-group select option {
+html[data-theme="light"] .form-group select option,
+html[data-theme="light"] .translate-select option {
   background: #fff;
   color: var(--text);
 }
@@ -1168,6 +1174,10 @@ html[data-theme="light"] .form-group select option {
 /* ─── CUSTOM DROPDOWN ─── */
 .custom-dropdown {
   position: relative;
+}
+
+.result-actions .custom-dropdown {
+  width: 135px;
 }
 
 .custom-dropdown .native-select {

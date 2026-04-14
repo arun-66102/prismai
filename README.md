@@ -34,10 +34,11 @@
 ## ✨ Features
 
 - 🎯 **Single Input Workflow** — Enter a product name and let AI handle the rest
-- 🔐 **Secure Authentication** — JWT-based auth with Access & Refresh tokens
+- 🔐 **Secure 2-Step Authentication** — OTP Email verification combined with secure JWT-based auth
 - 👥 **Role-Based Access Control (RBAC)** — Dedicated User and Admin roles
 - 💎 **Subscription Tiers** — Free, Pro, and Business tiers with integrated rate limiting
-- 🛡️ **Admin Dashboard** — Manage users, monitor usage stats, and update account statuses
+- 🛡️ **Admin Dashboard & History** — Manage users, monitor generation history, and manage global records
+- 🌍 **Multi-Language Translation** — Instant content translation post-generation
 - 🖼️ **Social Media Image Generation** — Powered by FLUX.1-schnell via HuggingFace/Together AI
 - ⚡ **Ultra-Fast Inference** — Powered by Groq and LLaMA 3.3
 - 🐘 **PostgreSQL Integration** — High-performance, asynchronous database handling with `asyncpg`
@@ -89,6 +90,12 @@ JWT_SECRET=your_jwt_secret
 API_KEY=your_groq_api_key
 HF_API_KEY=your_huggingface_api_key
 DATABASE_URL=postgresql://user:pass@localhost:5432/prism
+
+# For OTP Email Verification (Mock mode active if empty)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
 ```
 
 ### 2. Install Dependencies
@@ -117,13 +124,13 @@ Prism AI is production-ready. I have created detailed guides for several platfor
 
 ## 🗺️ Roadmap
 
-- [x] Full Authentication System
+- [x] Full Authentication System with Email OTP
 - [x] Admin Dashboard & RBAC
 - [x] PostgreSQL Migration
 - [x] Social Media Image Generation
+- [x] Content History & Export (PDF/MD)
+- [x] Multi-language Support
 - [ ] Stripe Payment Integration
-- [ ] Content History & Export (PDF/MD)
-- [ ] Multi-language Support
 - [ ] Team Workspaces
 
 ---
