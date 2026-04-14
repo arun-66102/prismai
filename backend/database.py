@@ -64,6 +64,17 @@ async def init_db():
             )
         ''')
 
+        # Create otp_codes table
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS otp_codes (
+                id SERIAL PRIMARY KEY,
+                email TEXT NOT NULL,
+                code TEXT NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
 async def get_db():
     p = await get_pool()
     if not p:
@@ -134,6 +145,40 @@ async def get_user_count() -> int:
         raise Exception("Database pool is unavailable.")
     async with p.acquire() as conn:
         return await conn.fetchval("SELECT COUNT(*) FROM users")
+
+# ─── Auth / OTP Helpers ──────────────────────────────────────────────────────
+
+async def save_otp(email: str, code: str, expires_at):
+    p = await get_pool()
+    if not p:
+        logger.error("Database pool is unavailable.")
+        return
+    async with p.acquire() as conn:
+        # Delete any existing OTP for this email
+        await conn.execute("DELETE FROM otp_codes WHERE email = $1", email)
+        await conn.execute(
+            "INSERT INTO otp_codes (email, code, expires_at) VALUES ($1, $2, $3)",
+            email, code, expires_at
+        )
+
+async def verify_otp(email: str, code: str) -> bool:
+    import datetime
+    p = await get_pool()
+    if not p:
+        return False
+    async with p.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM otp_codes WHERE email = $1 AND code = $2 AND expires_at > $3",
+            email, code, datetime.datetime.utcnow()
+        )
+        return bool(row)
+
+async def delete_otp(email: str):
+    p = await get_pool()
+    if not p:
+        return
+    async with p.acquire() as conn:
+        await conn.execute("DELETE FROM otp_codes WHERE email = $1", email)
 
 # ─── Generation History ──────────────────────────────────────────────────────
 import json

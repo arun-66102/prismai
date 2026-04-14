@@ -32,7 +32,7 @@ from auth import (
 )
 from middleware import get_current_user, get_rate_limiter
 from models import (
-    RegisterRequest, TokenResponse, UserResponse, 
+    RegisterRequest, OTPRequest, TokenResponse, UserResponse, 
     UserProfileResponse, UsageStats,
     HistoryItem, HistoryListResponse, TranslateRequest
 )
@@ -133,12 +133,36 @@ async def health():
     return {"status": "ok", "database": db_status}
 
 
+@app.post("/auth/request-otp")
+async def request_otp(request: OTPRequest):
+    """Generate and send an OTP for a new user registration."""
+    user = await database.get_user_by_email(request.email)
+    if user:
+        raise HTTPException(status_code=400, detail="Account already exists. Please login instead.")
+    
+    from email_service import send_otp_email
+    from datetime import datetime, timedelta
+    
+    # Generate and send the OTP
+    otp = await send_otp_email(request.email, request.name)
+    
+    # Save code to DB (expires in 10 minutes)
+    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    await database.save_otp(request.email, otp, expires_at)
+    
+    return {"message": "Verification code sent to your email."}
+
 @app.post("/auth/register", response_model=TokenResponse)
 async def register(request: RegisterRequest):
-    """Register a new user."""
+    """Verify OTP and register a new user."""
     user = await database.get_user_by_email(request.email)
     if user:
         raise HTTPException(status_code=400, detail="Email already registered")
+        
+    # Verify OTP
+    is_valid_otp = await database.verify_otp(request.email, request.otp)
+    if not is_valid_otp:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code. Please request a new one.")
         
     user_id = str(uuid.uuid4())
     hashed_password = get_password_hash(request.password)
@@ -152,6 +176,9 @@ async def register(request: RegisterRequest):
              "INSERT INTO users (id, email, name, password_hash, role) VALUES ($1, $2, $3, $4, $5)",
              user_id, request.email, request.name, hashed_password, role
          )
+         
+    # Clean up OTP after successful registration
+    await database.delete_otp(request.email)
              
     access_token = create_access_token(data={"sub": user_id, "tier": "free"})
     refresh_token = create_refresh_token(data={"sub": user_id})

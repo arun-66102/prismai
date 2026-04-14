@@ -430,16 +430,46 @@ $("#login-form")?.addEventListener("submit", async (e) => {
     }
 });
 
-// Register
+// Register Step 1: Request OTP
+let pendingRegistration = { name: "", email: "" };
+
 $("#register-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = $("#register-name").value.trim();
     const email = $("#register-email").value.trim();
+
+    showLoading("Sending Verification Code...");
+    try {
+        await apiPost("/auth/request-otp", { name, email }, true);
+        
+        pendingRegistration = { name, email };
+        toast("Verification code sent to email (check console mock mode)", "info");
+        
+        // Hide register form, show OTP form
+        $("#register-form").style.display = "none";
+        $("#otp-form").style.display = "block";
+    } catch (err) {
+        toast(`Error: ${err.message}`, "error");
+    } finally {
+        hideLoading();
+    }
+});
+
+// Register Step 2: Verify OTP and Register
+$("#otp-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const otp = $("#register-otp").value.trim();
     const password = $("#register-password").value;
 
     showLoading("Creating account...");
     try {
-        const data = await apiPost("/auth/register", { name, email, password }, true);
+        const payload = {
+            name: pendingRegistration.name,
+            email: pendingRegistration.email,
+            password: password,
+            otp: otp
+        };
+        const data = await apiPost("/auth/register", payload, true);
 
         accessToken = data.access_token;
         refreshToken = data.refresh_token;
@@ -447,15 +477,25 @@ $("#register-form")?.addEventListener("submit", async (e) => {
         localStorage.setItem("prism_refresh_token", refreshToken);
 
         toast("Account created successfully!", "success");
-        await fetchProfile();
-
-        // Clear form
+        
+        // Clear forms and reset UI
         $("#register-password").value = "";
+        $("#register-otp").value = "";
+        $("#register-form").style.display = "block";
+        $("#otp-form").style.display = "none";
+        
+        await fetchProfile();
     } catch (err) {
         toast(`Error: ${err.message}`, "error");
     } finally {
         hideLoading();
     }
+});
+
+// Back button from OTP to Register
+$("#back-to-register-btn")?.addEventListener("click", () => {
+    $("#register-form").style.display = "block";
+    $("#otp-form").style.display = "none";
 });
 
 // Initialize app wrapper to fetch profile
