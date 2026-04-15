@@ -40,6 +40,14 @@
             "destination": "/api/index.py"
         },
         {
+            "source": "/create-razorpay-order",
+            "destination": "/api/index.py"
+        },
+        {
+            "source": "/verify-razorpay-payment",
+            "destination": "/api/index.py"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index.py"
         },
