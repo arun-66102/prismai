@@ -292,6 +292,11 @@ function updateAuthUI() {
             greetingEl.textContent = `Welcome, ${currentUser.name.split(" ")[0]}!`;
         }
 
+        const upgradeBtn = document.getElementById("nav-upgrade-btn");
+        if (upgradeBtn) {
+            upgradeBtn.style.display = currentUser.tier !== "business" ? "block" : "none";
+        }
+
         // Show usage stats
         updateUsageStatsUI();
 
@@ -315,6 +320,9 @@ function updateAuthUI() {
         // Render Login button
         authStatusBox.innerHTML = `<button class="btn-icon-sm" id="nav-login-btn">Login</button>`;
         $("#nav-login-btn").addEventListener("click", () => switchTab("login"));
+
+        const upgradeBtn = document.getElementById("nav-upgrade-btn");
+        if (upgradeBtn) upgradeBtn.style.display = "none";
 
         // Clear usage stats
         $$(".usage-stats").forEach(el => el.innerHTML = "");
@@ -500,11 +508,76 @@ $("#back-to-register-btn")?.addEventListener("click", () => {
 
 // Initialize app wrapper to fetch profile
 const initHash = window.location.hash.substring(1);
+const urlParams = new URLSearchParams(window.location.search);
+const paymentStatus = urlParams.get("payment");
+
 if (accessToken && !["login", "register", "landing"].includes(initHash)) {
     showLoading("Loading Workspace...");
 }
 fetchProfile().finally(() => {
     hideLoading();
+    if (paymentStatus === "success") {
+        switchTab("payment-success");
+        history.replaceState(null, "", "/"); // clear query params
+    } else if (paymentStatus === "cancelled") {
+        toast("Payment cancelled.", "info");
+        history.replaceState(null, "", "/");
+    }
+});
+
+// ─── Razorpay Logic ────────────────────────────────────────────────────────
+$$(".razorpay-checkout-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        if (!currentUser) return toast("Please login to upgrade.", "error");
+
+        const tier = btn.dataset.tier;
+        showLoading("Initializing Secure Checkout...");
+        try {
+            const res = await apiPost("/create-razorpay-order", { tier });
+            hideLoading();
+
+            const options = {
+                key: res.key_id,
+                amount: res.amount,
+                currency: res.currency,
+                name: "Prism AI",
+                description: `Upgrade to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Tier`,
+                order_id: res.order_id,
+                theme: { color: "#ffaa00" },
+                handler: async function (response) {
+                    showLoading("Verifying Payment Securely...");
+                    try {
+                        await apiPost("/verify-razorpay-payment", {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            tier: tier
+                        });
+                        // Signature verified and DB updated successfully!
+                        window.location.href = "/?payment=success";
+                    } catch (err) {
+                        hideLoading();
+                        toast("Payment verification failed! Please contact support.", "error");
+                    }
+                },
+                prefill: {
+                    name: currentUser.name,
+                    email: currentUser.email
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function (response) {
+                toast("Payment failed. Please try again.", "error");
+            });
+
+            rzp.open();
+        } catch (err) {
+            toast(`Checkout error: ${err.message}`, "error");
+            hideLoading();
+        }
+    });
 });
 
 // ─── Blog Generation ────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -18,7 +18,13 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import uuid
 
-from config import VALID_PLATFORMS, VALID_STYLES, RATE_LIMITS
+from config import VALID_PLATFORMS, VALID_STYLES, RATE_LIMITS, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET
+import razorpay
+import hmac
+import hashlib
+
+razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
 from blog_generation import generate_blog
 from video_script import generate_video_script
 from image_generation import generate_image, IMAGE_DIR
@@ -104,6 +110,14 @@ class ImageRequest(BaseModel):
     seed: int | None = Field(None, description="Optional seed for reproducible generation")
     n: int = Field(1, ge=1, le=4, description="Number of images to generate (1-4)")
 
+class CheckoutRequest(BaseModel):
+    tier: str = Field(..., description="Desired tier: pro or business")
+
+class PaymentVerificationRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+    tier: str
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
 @app.get("/")
@@ -410,6 +424,64 @@ async def clear_history(
     """Clear all history for the current user."""
     await database.delete_all_history(current_user["id"])
     return {"message": "All history cleared."}
+
+# ─── Razorpay Integration ─────────────────────────────────────────────────────
+
+@app.post("/create-razorpay-order")
+async def create_razorpay_order(request: CheckoutRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        # Amount is in paise (1 INR = 100 paise)
+        # Assuming USD $4 = ~ ₹399 and USD $6 = ~ ₹599
+        tier_price = 39900 if request.tier == "pro" else 59900
+        
+        order_data = {
+            "amount": tier_price,
+            "currency": "INR",
+            "receipt": f"rcpt_{str(current_user.get('id', 'unknown'))[:8]}_{str(uuid.uuid4())[:8]}",
+            "notes": {
+                "user_id": current_user["id"],
+                "tier": request.tier
+            }
+        }
+        
+        order = razorpay_client.order.create(data=order_data)
+        
+        return {
+            "order_id": order["id"],
+            "amount": order["amount"],
+            "currency": order["currency"],
+            "key_id": RAZORPAY_KEY_ID,
+            "tier": request.tier
+        }
+    except Exception as e:
+        logger.exception("Razorpay order creation failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/verify-razorpay-payment")
+async def verify_razorpay_payment(req: PaymentVerificationRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        # Verify the signature from the frontend
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': req.razorpay_order_id,
+            'razorpay_payment_id': req.razorpay_payment_id,
+            'razorpay_signature': req.razorpay_signature
+        })
+        
+        # Valid signature, secure to upgrade
+        success = await database.update_user_tier(current_user["id"], req.tier)
+        if success:
+            logger.info(f"User {current_user['id']} successfully verified and upgraded to {req.tier}.")
+            return {"status": "success"}
+        else:
+            raise HTTPException(status_code=500, detail="Database update failed")
+            
+    except razorpay.errors.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Signature Verification Failed")
+    except Exception as e:
+        logger.exception("Payment Verification Error")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 
 # ─── Entry Point ──────────────────────────────────────────────────────────────

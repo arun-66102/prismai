@@ -13,3 +13,4 @@ asyncpg
 pydantic[email]
 gunicorn
 python-multipart
+razorpay

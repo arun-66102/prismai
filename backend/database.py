@@ -99,6 +99,18 @@ async def get_user_by_id(user_id: str):
         row = await conn.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
         return dict(row) if row else None
 
+async def update_user_tier(user_id: str, tier: str) -> bool:
+    p = await get_pool()
+    if not p:
+        logger.error("Database pool is unavailable. Cannot update user tier.")
+        return False
+    async with p.acquire() as conn:
+        result = await conn.execute(
+            "UPDATE users SET tier = $1 WHERE id = $2", tier, user_id
+        )
+        return result == "UPDATE 1"
+
+
 async def log_usage(user_id: str, endpoint: str):
     p = await get_pool()
     if not p:

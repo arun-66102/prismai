@@ -42,6 +42,11 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 # Database Config
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/prism")
 
+# Razorpay Config
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_mockkey")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "rzp_test_mocksecret")
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "mock_webhook_secret")
+
 # Rate Limits by Tier
 RATE_LIMITS = {
     "free": {
